@@ -1,37 +1,43 @@
-// Function to switch from initial to new container after 3 seconds
 setTimeout(function() {
     var initialContainer = document.querySelector('.initial-container');
     var newContainer = document.querySelector('.new-container');
 
-    // Fade out the initial container
     initialContainer.style.opacity = '0';
     setTimeout(() => {
-        initialContainer.style.display = 'none'; // Fully hide it after fade-out
-    }, 500);  // Delay matches the fade-out duration (0.5 seconds)
+        initialContainer.style.display = 'none';
+    }, 500);
 
-    // Show the new container
-    newContainer.style.display = 'flex'; // Set display to flex for the new container
+    newContainer.style.display = 'flex';
     setTimeout(() => {
-        newContainer.classList.add('show-new-container'); // Add class for fade-in effect
-        newContainer.style.opacity = '1'; // Make it visible
-    }, 10); // Small delay to trigger the fade-in effect
+        newContainer.classList.add('show-new-container');
+        newContainer.style.opacity = '1';
+    }, 10);
 
-    // Function to switch from new to final container after 3 seconds
     setTimeout(function() {
         var finalContainer = document.querySelector('.final-container');
 
-        // Fade out the new container
         newContainer.style.opacity = '0';
         setTimeout(() => {
-            newContainer.style.display = 'none'; // Fully hide it after fade-out
-        }, 500);  // Delay matches the fade-out duration (0.5 seconds)
+            newContainer.style.display = 'none';
+        }, 500);
 
-        // Show the final container
-        finalContainer.style.display = 'flex'; // Set display to flex for the final container
+        finalContainer.style.display = 'flex';
         setTimeout(() => {
-            finalContainer.classList.add('show-final-container'); // Add class for fade-in effect
-            finalContainer.style.opacity = '1'; // Make it visible
-        }, 10); // Small delay to trigger the fade-in effect
-    }, 3000); // Switch to final container after 3 seconds
+            finalContainer.classList.add('show-final-container');
+            finalContainer.style.opacity = '1';
+        }, 10);
+    }, 3000);
 
-}, 3000); // Switch from initial to new container after 3 seconds
+}, 3000);
+
+const audio = document.getElementById('myAudio');
+const playButton = document.getElementById('playAudio');
+const pauseButton = document.getElementById('pauseAudio');
+
+playButton.addEventListener('click', function() {
+    audio.play();
+});
+
+pauseButton.addEventListener('click', function() {
+    audio.pause();
+});

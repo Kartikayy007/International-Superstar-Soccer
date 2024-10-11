@@ -1,8 +1,8 @@
 html, body {
     margin: 0;
     height: 100vh;
-    width: 100vw; /* Full width of the viewport */
-    overflow: hidden; /* Prevent scrollbars */
+    width: 100vw; 
+    overflow: hidden; 
 }
 
 body {
@@ -18,36 +18,36 @@ body {
     color: white;
     text-align: center;
     height: 100vh; 
-    width: 100vw; /* Full width */
+    width: 100vw; 
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.5s ease-out; /* Fade transition */
+    transition: opacity 0.5s ease-out; 
 }
 
 .new-container,
 .final-container {
-    display: none; /* Initially hidden */
-    opacity: 0; /* Initially hidden by opacity */
-    transition: opacity 1s ease-in; /* Fade-in transition */
-    background-color: black; /* Set background color to black */
+    display: none; 
+    opacity: 0; 
+    transition: opacity 1s ease-in; 
+    background-color: black; 
 }
 
 /* For the new container */
 .new-container {
-    width: 80vw; /* Width reduced by 10% from each side */
-    height: 100vh; /* Full height */
+    width: 80vw; 
+    height: 100vh; 
     background-image: url('../assets/images/Screenshot (13).png');
-    background-size: contain; /* Ensure the image fits the container */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* No repeat */
+    background-size: contain; 
+    background-position: center; 
+    background-repeat: no-repeat; 
 }
 
 /* For the final container */
 .final-container {
     width: 80vw; /* Width reduced by 10% from each side */
     height: 100vh; /* Height reduced by 5% from top and bottom */
-    background-image: url('../assets/images/Screenshot (15).png'); /* Replace with your final image path */
+    background-image: url('../assets/images/Screenshot (15).png'); 
     background-size: contain; /* Ensure the image fits the container */
     background-position: center; /* Center the image */
     background-repeat: no-repeat; /* No repeat */
@@ -65,4 +65,45 @@ body {
 .show-final-container {
     display: flex; /* Display flex for the new and final containers */
     opacity: 1; /* Make visible with fade */
+}
+.audio-controls {
+    position: fixed; 
+    bottom: 20px; 
+    left: 20px; 
+    z-index: 1000;
+    display: flex;
+    gap: 10px;;
+}
+
+
+button {
+    padding: 10px 20px;
+    background-color: black; 
+    color: orange;
+    border: 2px solid orange;
+    border-radius: 5px;
+    cursor: pointer;
+    
+    font-size: 16px;
+    transition: background 0.3s, color 0.3s;
+}
+
+button:hover {
+    background: linear-gradient(to right, orange, black); /* Gradient effect on hover */
+    color: white; /* Change text color on hover */
+}
+
+.initial-container .audio-controls button {
+    background-color: black; /* Initial state */
+    color: orange; /* Initial text color */
+}
+
+.new-container .audio-controls button {
+    background-color: orange; /* Change to orange in new container */
+    color: black; /* Change text color in new container */
+}
+
+.final-container .audio-controls button {
+    background-color: black; 
+    color: orange; /* Change text color in final container */
 }
