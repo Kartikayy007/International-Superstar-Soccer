@@ -46,8 +46,8 @@ window.addEventListener('load', function () {
         constructor(x, y) {
             this.x = x;
             this.y = y;
-            this.width = 70;
-            this.height = 120;
+            this.width = 120;
+            this.height = 170;
             this.speed = 5;
             this.frame = 0;
             this.timer = 0;
@@ -55,6 +55,8 @@ window.addEventListener('load', function () {
             this.team = 'brazil';
             this.controlling = false;
             this.current = 'default';
+            this.hasPossession = false;
+            this.dribble = 0;
 
             this.images = this.team === 'brazil' ? {
                 default: document.getElementById('default1'),
@@ -80,7 +82,6 @@ window.addEventListener('load', function () {
                     y -= this.speed;
                 }
                 if (input.keys.indexOf('s') !== -1) {
-
                     y += this.speed;
                 }
                 if (input.keys.indexOf('a') !== -1) {
@@ -107,31 +108,36 @@ window.addEventListener('load', function () {
 
                     if (y < 0 && x === 0) {
                         this.current = 'up';
-                    }
+                    } 
                     else if (y > 0 && x === 0) {
                         this.current = 'down';
-                    }
+                    } 
                     else if (x < 0 && y === 0) {
                         this.current = 'left';
-                    }
+                    } 
                     else if (x > 0 && y === 0) {
                         this.current = 'right';
-                    }
+                    } 
                     else if (y < 0 && x < 0) {
                         this.current = 'upLeft';
-                    }
+                    } 
                     else if (y < 0 && x > 0) {
                         this.current = 'upRight';
-                    }
+                    } 
                     else if (y > 0 && x < 0) {
                         this.current = 'downLeft';
-                    }
+                    } 
                     else if (y > 0 && x > 0) {
                         this.current = 'downRight';
+                    }
+
+                    if (this.hasPossession) {
+                        this.dribble = Math.sin(this.timer / 50) * 10;
                     }
                 } else {
                     this.current = 'default';
                     this.frame = 0;
+                    this.dribble = 0;
                 }
             }
         }
@@ -152,8 +158,22 @@ window.addEventListener('load', function () {
                 ctx.ellipse(this.x, this.y + this.height / 2, this.width / 2, 10, 0, 0, Math.PI * 2);
                 ctx.stroke();
             }
+
+            const legs = this.getBoundingBox();
+            ctx.strokestyle = 'red';
+            ctx.strokeRect(legs.x, legs.y, legs.width, legs.height);
+        }
+
+        getBoundingBox() {
+            return {
+                x: this.x - this.width / 2,
+                y: this.y + this.height / 5,
+                width: this.width,
+                height: this.height / 3
+            };
         }
     }
+
 
     class Game {
         constructor() {
@@ -238,7 +258,8 @@ window.addEventListener('load', function () {
                 if (player !== this.oncontrol) {
                     const dis = Math.sqrt(
                         (player.x - currentX) * (player.x - currentX) + (player.y - currentY) * (player.y - currentY)
-                    ); if (dis <= shortestdistance) {
+                    );
+                    if (dis <= shortestdistance) {
                         shortestdistance = dis;
                         nearestplayer = player;
                     }
@@ -253,13 +274,95 @@ window.addEventListener('load', function () {
         }
     }
 
+    class Ball {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.radius = 10;
+            this.image = {
+                default: document.getElementById('ball-1'),
+                moving: [document.getElementById('ball-1'), document.getElementById('ball-2')]
+            }
+            this.possession = '';
+            this.frame = 0;
+            this.timer = 0;
+            this.interval = 100;
+        }
+
+        draw(ctx) {
+            let currentImage;
+            if (this.possession) {
+                currentImage = this.image.moving[this.frame];
+            }
+            else {
+                currentImage = this.image.default;
+            }
+            ctx.drawImage(
+                currentImage,
+                this.x - this.radius,
+                this.y - this.radius,
+                this.radius * 3.5,
+                this.radius * 3.5
+            );
+        }
+
+        update(players) {
+            if (this.possession) {
+                let ballposition;
+                if (this.possession.current.includes('Left')) {
+                    ballposition = -50;
+                }
+                else {
+                    ballposition = 50;
+                }
+                this.x = this.possession.x + ballposition + this.possession.dribble;
+                this.y = this.possession.y + 50;
+                this.ballAnimation();
+                this.possession.hasPossession = true;
+            } else {
+                players.forEach(player => {
+                    const legs = player.getBoundingBox();
+                    if (this.x > legs.x && this.x < legs.x + legs.width && this.y > legs.y && this.y < legs.y + legs.height) {
+                        this.possession = player;
+                        player.hasPossession = true;
+                    }
+                });
+            }
+
+            if (this.possession && this.possession.current === 'left') {
+                this.x = this.possession.x - 50 + this.possession.dribble;
+                this.y = this.possession.y + 50;
+            }
+            if (this.possession && this.possession.current === 'down') {
+                this.x = this.possession.x;
+                this.y = this.possession.y + 50;
+            }
+
+            players.forEach(player => {
+                if (player !== this.possession) {
+                    player.hasPossession = false;
+                }
+            });
+        }
+
+        ballAnimation() {
+            this.timer += 16;
+            if (this.timer >= this.interval) {
+                this.timer = 0;
+                this.frame = (this.frame + 1) % 2;
+            }
+        }
+    }
+
     const game = new Game();
+    const ball = new Ball(width / 2, height / 2);
 
     function gameloop() {
         game.update();
+        ball.update(game.brazil);
         game.draw(ctx);
+        ball.draw(ctx);
         requestAnimationFrame(gameloop);
     }
-
     gameloop();
 });
