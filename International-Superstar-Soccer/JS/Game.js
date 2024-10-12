@@ -25,6 +25,9 @@ window.addEventListener('load', function () {
                     e.preventDefault();
                     this.lastkey = 'Shift';
                 }
+                if (e.key === ' ') {
+                    this.lastkey = 'Space';
+                }
             });
 
             window.addEventListener('keyup', (e) => {
@@ -57,6 +60,8 @@ window.addEventListener('load', function () {
             this.current = 'default';
             this.hasPossession = false;
             this.dribble = 0;
+            this.isKicking = false;
+            this.kickTimer = 0;
 
             this.images = this.team === 'brazil' ? {
                 default: document.getElementById('default1'),
@@ -67,7 +72,8 @@ window.addEventListener('load', function () {
                 upLeft: [document.getElementById('1up-left-1'), document.getElementById('1up-left-2'), document.getElementById('1up-left-3')],
                 upRight: [document.getElementById('1up-right-1'), document.getElementById('1up-right-2'), document.getElementById('1up-right-3')],
                 downLeft: [document.getElementById('1down-left-1'), document.getElementById('1down-left-2'), document.getElementById('1down-left-3')],
-                downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')]
+                downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')],
+                kick: document.getElementById('kick-sprite')
             } : {
                 //Argentina ka add karna hai yaha
             };
@@ -140,10 +146,23 @@ window.addEventListener('load', function () {
                     this.dribble = 0;
                 }
             }
+
+            if (this.isKicking) {
+                this.kickTimer += 16;
+                if (this.kickTimer >= 500) {  // Kick animation lasts for 500ms
+                    this.isKicking = false;
+                    this.kickTimer = 0;
+                }
+            }
         }
 
         draw(ctx) {
-            let currentImage = this.current === 'default' ? this.images.default : this.images[this.current][this.frame];
+            let currentImage;
+            if (this.isKicking) {
+                currentImage = this.images.kick;
+            } else {
+                currentImage = this.current === 'default' ? this.images.default : this.images[this.current][this.frame];
+            }
             ctx.drawImage(
                 currentImage,
                 this.x - this.width / 2,
@@ -172,64 +191,37 @@ window.addEventListener('load', function () {
                 height: this.height / 3
             };
         }
-    }
 
+        kick() {
+            this.isKicking = true;
+            this.kickTimer = 0;
+        }
+    }
 
     class Game {
         constructor() {
             this.input = new InputHandler();
             this.brazil = [];
-            this.oncontrol = false;
+            this.oncontrol = null;
 
             const brazilPositions = [
-                {
-                    x: width * 0.2,
-                    y: height * 0.2
-                },
-                {
-                    x: width * 0.1,
-                    y: height * 0.4
-                },
-                {
-                    x: width * 0.2,
-                    y: height * 0.6
-                },
-                {
-                    x: width * 0.3,
-                    y: height * 0.3
-                },
-                {
-                    x: width * 0.3,
-                    y: height * 0.7
-                },
-                {
-                    x: width * 0.4,
-                    y: height * 0.2
-                },
-                {
-                    x: width * 0.4,
-                    y: height * 0.5
-                },
-                {
-                    x: width * 0.4,
-                    y: height * 0.8
-                },
-                {
-                    x: width * 0.5,
-                    y: height * 0.3
-                },
-                {
-                    x: width * 0.5,
-                    y: height * 0.7
-                }
+                { x: width * 0.2, y: height * 0.2 },
+                { x: width * 0.1, y: height * 0.4 },
+                { x: width * 0.2, y: height * 0.6 },
+                { x: width * 0.3, y: height * 0.3 },
+                { x: width * 0.3, y: height * 0.7 },
+                { x: width * 0.4, y: height * 0.2 },
+                { x: width * 0.4, y: height * 0.5 },
+                { x: width * 0.4, y: height * 0.8 },
+                { x: width * 0.5, y: height * 0.3 },
+                { x: width * 0.5, y: height * 0.7 }
             ];
 
             brazilPositions.forEach(e => {
                 this.brazil.push(new Player(e.x, e.y, 'brazil'));
             });
 
-            this.oncontrol = this.brazil[0];
-            this.oncontrol.controlling = true;
+            this.setControlledPlayer(this.brazil[0]);
         }
 
         update() {
@@ -238,12 +230,16 @@ window.addEventListener('load', function () {
                 this.input.lastkey = '';
             }
 
+            if (this.input.lastkey === 'Space') {
+                this.pass();
+                this.input.lastkey = '';
+            }
+
             this.brazil.forEach(player => player.update(this.input));
         }
 
         draw(ctx) {
             ctx.drawImage(backgroundImage, 0 - 1400, 0 - 500, width + 3000, height + 1000);
-
             [...this.brazil].forEach(player => player.draw(ctx));
         }
 
@@ -251,15 +247,15 @@ window.addEventListener('load', function () {
             const currentX = this.oncontrol.x;
             const currentY = this.oncontrol.y;
 
-            let nearestplayer = '';
+            let nearestplayer = null;
             let shortestdistance = Number.MAX_VALUE;
 
             this.brazil.forEach(player => {
                 if (player !== this.oncontrol) {
                     const dis = Math.sqrt(
-                        (player.x - currentX) * (player.x - currentX) + (player.y - currentY) * (player.y - currentY)
+                        (player.x - currentX) ** 2 + (player.y - currentY) ** 2
                     );
-                    if (dis <= shortestdistance) {
+                    if (dis < shortestdistance) {
                         shortestdistance = dis;
                         nearestplayer = player;
                     }
@@ -267,10 +263,47 @@ window.addEventListener('load', function () {
             });
 
             if (nearestplayer) {
-                this.oncontrol.controlling = false;
-                this.oncontrol = nearestplayer;
-                this.oncontrol.controlling = true;
+                this.setControlledPlayer(nearestplayer);
             }
+        }
+
+        pass() {
+            if (this.oncontrol.hasPossession) {
+                const nearestPlayer = this.findNearestPlayer();
+                if (nearestPlayer) {
+                    this.oncontrol.kick();
+                    this.oncontrol.hasPossession = false;
+                    ball.pass(nearestPlayer);
+                    this.setControlledPlayer(nearestPlayer);
+                }
+            }
+        }
+
+        findNearestPlayer() {
+            let nearestPlayer = null;
+            let shortestDistance = Number.MAX_VALUE;
+
+            this.brazil.forEach(player => {
+                if (player !== this.oncontrol) {
+                    const distance = Math.sqrt(
+                        (player.x - this.oncontrol.x) ** 2 + (player.y - this.oncontrol.y) ** 2
+                    );
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance;
+                        nearestPlayer = player;
+                    }
+                }
+            });
+
+            return nearestPlayer;
+        }
+
+        setControlledPlayer(player) {
+            if (this.oncontrol) {
+                this.oncontrol.controlling = false;
+            }
+            this.oncontrol = player;
+            this.oncontrol.controlling = true;
         }
     }
 
@@ -283,15 +316,18 @@ window.addEventListener('load', function () {
                 default: document.getElementById('ball-1'),
                 moving: [document.getElementById('ball-1'), document.getElementById('ball-2')]
             }
-            this.possession = '';
+            this.possession = null;
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
+            this.isPassing = false;
+            this.passTarget = null;
+            this.passSpeed = 10;
         }
 
         draw(ctx) {
             let currentImage;
-            if (this.possession) {
+            if (this.possession || this.isPassing) {
                 currentImage = this.image.moving[this.frame];
             }
             else {
@@ -307,7 +343,9 @@ window.addEventListener('load', function () {
         }
 
         update(players) {
-            if (this.possession) {
+            if (this.isPassing) {
+                this.updatePassingPosition();
+            } else if (this.possession) {
                 let ballposition;
                 if (this.possession.current.includes('Left')) {
                     ballposition = -50;
@@ -325,6 +363,7 @@ window.addEventListener('load', function () {
                     if (this.x > legs.x && this.x < legs.x + legs.width && this.y > legs.y && this.y < legs.y + legs.height) {
                         this.possession = player;
                         player.hasPossession = true;
+                        game.setControlledPlayer(player);  // Transfer control to the player who gets the ball
                     }
                 });
             }
@@ -352,17 +391,47 @@ window.addEventListener('load', function () {
                 this.frame = (this.frame + 1) % 2;
             }
         }
+
+        pass(target) {
+            this.isPassing = true;
+            this.passTarget = target;
+            this.possession = null;
+        }
+
+        updatePassingPosition() {
+            const dx = this.passTarget.x - this.x;
+            const dy = this.passTarget.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > this.passSpeed) {
+                this.x += (dx / distance) * this.passSpeed;
+                this.y += (dy / distance) * this.passSpeed;
+            } else {
+                this.x = this.passTarget.x;
+                this.y = this.passTarget.y;
+                this.isPassing = false;
+                this.passTarget.hasPossession = true;
+                this.possession = this.passTarget;
+                game.setControlledPlayer(this.passTarget);
+            }
+            this.ballAnimation();
+        }
     }
 
     const game = new Game();
     const ball = new Ball(width / 2, height / 2);
 
     function gameloop() {
+        ctx.clearRect(0, 0, width, height);
+        
         game.update();
         ball.update(game.brazil);
+        
         game.draw(ctx);
         ball.draw(ctx);
+        
         requestAnimationFrame(gameloop);
     }
+
     gameloop();
 });
