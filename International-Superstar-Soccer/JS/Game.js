@@ -5,9 +5,12 @@ window.addEventListener('load', function () {
     const height = canvas.height = window.innerHeight;
     const width = canvas.width = window.innerWidth;
 
+    const backgroundImage = document.getElementById('backgroundImage');
+
     class InputHandler {
         constructor() {
             this.keys = [];
+            this.lastkey = '';
 
             window.addEventListener('keydown', (e) => {
                 if ((e.key === 'w' ||
@@ -17,6 +20,10 @@ window.addEventListener('load', function () {
                     e.key === ' ') &&
                     this.keys.indexOf(e.key) === -1) {
                     this.keys.push(e.key);
+                }
+                if (e.key === 'Shift') {
+                    e.preventDefault();
+                    this.lastkey = 'Shift';
                 }
             });
 
@@ -28,12 +35,15 @@ window.addEventListener('load', function () {
                     e.key === ' ') {
                     this.keys.splice(this.keys.indexOf(e.key), 1);
                 }
+                if (e.key === 'Shift') {
+                    this.lastkey = '';
+                }
             });
         }
     }
 
     class Player {
-        constructor(x, y) {
+        constructor(x, y, team) {
             this.x = x;
             this.y = y;
             this.width = 70;
@@ -42,134 +52,84 @@ window.addEventListener('load', function () {
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
-            this.moving = false;
-            this.imagesLoaded = true;
+            this.team = team;
+            this.controlling = false;
 
-            this.placeholder = {
-                width: 50,
-                height: 50,
-                color: '#FF0000'
-            };
+            this.current = 'default';
 
-            this.currentDirection = 'default1';
-
-            this.images = {
+            this.images = this.team === 'brazil' ? {
                 default: document.getElementById('default1'),
-                up: [
-                    document.getElementById('up-1'),
-                    document.getElementById('up-2'),
-                    document.getElementById('up-3')
-                ],
-                down: [
-                    document.getElementById('down-1'),
-                    document.getElementById('down-2'),
-                    document.getElementById('down-3')
-                ],
-                right: [
-                    document.getElementById('right-1'),
-                    document.getElementById('right-2'),
-                    document.getElementById('right-3')
-                ],
-                left: [
-                    document.getElementById('left-1'),
-                    document.getElementById('left-2'),
-                    document.getElementById('left-3')
-                ],
-                upLeft: [
-                    document.getElementById('up-left-1'),
-                    document.getElementById('up-left-2'),
-                    document.getElementById('up-left-3')
-                ],
-                upRight: [
-                    document.getElementById('up-right-1'),
-                    document.getElementById('up-right-2'),
-                    document.getElementById('up-right-3')
-                ],
-                downLeft: [
-                    document.getElementById('down-left-1'),
-                    document.getElementById('down-left-2'),
-                    document.getElementById('down-left-3')
-                ],
-                downRight: [
-                    document.getElementById('down-right-1'),
-                    document.getElementById('down-right-2'),
-                    document.getElementById('down-right-3')
-                ]
-            };
+                up: [document.getElementById('1up-1'), document.getElementById('1up-2'), document.getElementById('1up-3')],
+                down: [document.getElementById('1down-1'), document.getElementById('1down-2'), document.getElementById('1down-3')],
+                right: [document.getElementById('1right-1'), document.getElementById('1right-2'), document.getElementById('1right-3')],
+                left: [document.getElementById('1left-1'), document.getElementById('1left-2'), document.getElementById('1left-3')],
+                upLeft: [document.getElementById('1up-left-1'), document.getElementById('1up-left-2'), document.getElementById('1up-left-3')],
+                upRight: [document.getElementById('1up-right-1'), document.getElementById('1up-right-2'), document.getElementById('1up-right-3')],
+                downLeft: [document.getElementById('1down-left-1'), document.getElementById('1down-left-2'), document.getElementById('1down-left-3')],
+                downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')]
+            } : {
+                //Argentina ka add karna hai yaha
+                };
         }
 
-        update(keys) {
-            this.moving = false;
+        update(input) {
+            if (this.controlling) {
+                let x = 0;
+                let y = 0;
 
-            let x = 0;
-            let y = 0;
+                if (input.keys.indexOf('w') !== -1) y -= this.speed;
+                if (input.keys.indexOf('s') !== -1) y += this.speed;
+                if (input.keys.indexOf('a') !== -1) x -= this.speed;
+                if (input.keys.indexOf('d') !== -1) x += this.speed;
 
-            if (keys.indexOf('w') !== -1) {
-                y -= this.speed;
-            }
-            if (keys.indexOf('s') !== -1) {
-                y += this.speed;
-            }
-            if (keys.indexOf('a') !== -1) {
-                x -= this.speed;
-            }
-            if (keys.indexOf('d') !== -1) {
-                x += this.speed;
-            }
-
-            if (x !== 0 && y !== 0) {
-                // Normalize diagonal movement
-                x *= 0.707;
-                y *= 0.707;
-            }
-
-            this.x += x;
-            this.y += y;
-
-            // Update direction based on movement
-            if (x !== 0 || y !== 0) {
-                this.moving = true;
-
-                // Determine direction based on movement vector
-                if (y < 0 && x === 0) {
-                    this.currentDirection = 'up';
-                } else if (y > 0 && x === 0) {
-                    this.currentDirection = 'down';
-                } else if (x < 0 && y === 0) {
-                    this.currentDirection = 'left';
-                } else if (x > 0 && y === 0) {
-                    this.currentDirection = 'right';
-                } else if (y < 0 && x < 0) {
-                    this.currentDirection = 'upLeft';
-                } else if (y < 0 && x > 0) {
-                    this.currentDirection = 'upRight';
-                } else if (y > 0 && x < 0) {
-                    this.currentDirection = 'downLeft';
-                } else if (y > 0 && x > 0) {
-                    this.currentDirection = 'downRight';
+                if (x !== 0 && y !== 0) {
+                    x *= 0.7;
+                    y *= 0.7;
                 }
-            }
 
-            if (this.moving) {
-                this.timer += 16.67;
-                if (this.timer >= this.interval) {
-                    this.timer = 0;
-                    this.frame = (this.frame + 1) % 3;
+                this.x += x;
+                this.y += y;
+
+                if (x !== 0 || y !== 0) {
+                    this.timer += 16.67;
+                    if (this.timer >= this.interval) {
+                        this.timer = 0;
+                        this.frame = (this.frame + 1) % 3;
+                    }
+
+                    if (y < 0 && x === 0) {
+                        this.current = 'up';
+                    } 
+                    else if (y > 0 && x === 0) {
+                        this.current = 'down';
+                    } 
+                    else if (x < 0 && y === 0) {
+                        this.current = 'left';
+                    } 
+                    else if (x > 0 && y === 0) {
+                        this.current = 'right';
+                    } 
+                    else if (y < 0 && x < 0) {
+                        this.current = 'upLeft';
+                    } 
+                    else if (y < 0 && x > 0) {
+                        this.current = 'upRight';
+                    } 
+                    else if (y > 0 && x < 0) {
+                        this.current = 'downLeft';
+                    } 
+                    else if (y > 0 && x > 0) {
+                        this.current = 'downRight';
+                    }
+                } else {
+                    this.current = 'default';
+                    this.frame = 0;
                 }
-            } else {
-                this.frame = 0;
             }
         }
 
         draw(ctx) {
-
-            let currentImage;
-            if (this.moving) {
-                currentImage = this.images[this.currentDirection][this.frame];
-            } else {
-                currentImage = this.images.default;
-            }
-
+            let currentImage = this.current === 'default' ? this.images.default : this.images[this.current][this.frame];
             ctx.drawImage(
                 currentImage,
                 this.x - this.width / 2,
@@ -177,18 +137,104 @@ window.addEventListener('load', function () {
                 this.width,
                 this.height
             );
+
+            if (this.controlling) {
+                ctx.strokeStyle = 'red';
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y + this.height / 2, this.width / 2, 10, 0, 0, Math.PI * 2);
+                ctx.stroke();
+            }
         }
     }
 
-    const input = new InputHandler();
-    const player = new Player(width / 2, height / 2);
+    class Game {
+        constructor() {
+            this.input = new InputHandler();
+            this.brazil = [];
+            this.oncontrol = false;
+
+            const brazilPositions = [
+                {x: width * 0.2,
+                y: height * 0.2},
+                {x: width * 0.1,
+                y: height * 0.4},
+                {x: width * 0.2,
+                y: height * 0.6},
+                {x: width * 0.3,
+                y: height * 0.3},
+                {x: width * 0.3,
+                y: height * 0.7},
+                {x: width * 0.4, 
+                y: height * 0.2},
+                {x: width * 0.4, 
+                y: height * 0.5},
+                {x: width * 0.4, 
+                y: height * 0.8},
+                {x: width * 0.5, 
+                y: height * 0.3},
+                {x: width * 0.5, 
+                y: height * 0.7}
+            ];
+
+            brazilPositions.forEach(e => {
+                this.brazil.push(new Player(e.x, e.y, 'brazil'));
+            });
+
+            this.oncontrol = this.brazil[0];
+            this.oncontrol.controlling = true;
+        }
+
+        update() {
+            if (this.input.lastkey === 'Shift') {
+                this.switch();
+                this.input.lastkey = '';
+            }
+
+            this.brazil.forEach(player => player.update(this.input));
+        }
+
+        draw(ctx) {
+            ctx.drawImage(backgroundImage, 0-2000, 0-500, width + 3000, height + 1000);
+            
+            [...this.brazil].forEach(player => player.draw(ctx));
+        }
+
+        switch() {
+            const currentX = this.oncontrol.x;
+            const currentY = this.oncontrol.y;
+
+            let nearestplayer = '';
+            let shortestdistance = Number.MAX_VALUE;
+
+            this.brazil.forEach(player => {
+                if (player !== this.oncontrol) {
+                    const dis = Math.sqrt(
+                        (player.x - currentX) * (player.x - currentX) + (player.y - currentY) * (player.y - currentY)
+                    );if (dis <= shortestdistance) {
+                        shortestdistance = dis;
+                        nearestplayer = player;
+                    }
+                }
+            });
+
+            if (nearestplayer) {
+                this.oncontrol.controlling = false;
+                this.oncontrol = nearestplayer;
+                this.oncontrol.controlling = true;
+            }
+        }
+    }
+
+    const game = new Game();
     
-    function game() {
-        ctx.clearRect(0, 0, width, height);
-        player.update(input.keys);
-        player.draw(ctx);
-        requestAnimationFrame(game);
+    function gameLoop() {
+        game.update();
+        game.draw(ctx);
+        requestAnimationFrame(gameLoop);
     }
     
-    game();
+    gameLoop();
 });
+
+
+

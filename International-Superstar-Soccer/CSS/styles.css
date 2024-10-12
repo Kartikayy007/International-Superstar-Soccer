@@ -1,18 +1,19 @@
-* {
+body, html {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    overflow: hidden;
 }
-
- canvas {
-    background: green;
+#GameCanvas {
     position: absolute;
-    top: 0%;
-    left: 0%;
-    width: 100%;
-    height: 100%;
+    top: 0;
+    left: 0;
 }
-
+#backgroundImage { 
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 .preload-images {
     display: none;
 } 
