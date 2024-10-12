@@ -25,6 +25,9 @@ window.addEventListener('load', function () {
                     e.preventDefault();
                     this.lastkey = 'Shift';
                 }
+                if (e.key === ' ') {
+                    this.lastkey = 'Space';
+                }
             });
 
             window.addEventListener('keyup', (e) => {
@@ -46,9 +49,9 @@ window.addEventListener('load', function () {
         constructor(x, y) {
             this.x = x;
             this.y = y;
-            this.width = 120;
+            this.width = 100;
             this.height = 170;
-            this.speed = 5;
+            this.speed = 5; 
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
@@ -56,7 +59,8 @@ window.addEventListener('load', function () {
             this.controlling = false;
             this.current = 'default';
             this.hasPossession = false;
-            this.dribble = 0;
+            this.isKicking = false;
+            this.kickTimer = 0;
 
             this.images = this.team === 'brazil' ? {
                 default: document.getElementById('default1'),
@@ -67,7 +71,8 @@ window.addEventListener('load', function () {
                 upLeft: [document.getElementById('1up-left-1'), document.getElementById('1up-left-2'), document.getElementById('1up-left-3')],
                 upRight: [document.getElementById('1up-right-1'), document.getElementById('1up-right-2'), document.getElementById('1up-right-3')],
                 downLeft: [document.getElementById('1down-left-1'), document.getElementById('1down-left-2'), document.getElementById('1down-left-3')],
-                downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')]
+                downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')],
+                kick: document.getElementById('kick-sprite')
             } : {
                 //Argentina ka add karna hai yaha
             };
@@ -130,24 +135,32 @@ window.addEventListener('load', function () {
                     else if (y > 0 && x > 0) {
                         this.current = 'downRight';
                     }
-
-                    if (this.hasPossession) {
-                        this.dribble = Math.sin(this.timer / 50) * 10;
-                    }
                 } else {
                     this.current = 'default';
                     this.frame = 0;
-                    this.dribble = 0;
+                }
+            }
+
+            if (this.isKicking) {
+                this.kickTimer += 12;
+                if (this.kickTimer >= 100) { 
+                    this.isKicking = false;
+                    this.kickTimer = 0;
                 }
             }
         }
 
-        draw(ctx) {
-            let currentImage = this.current === 'default' ? this.images.default : this.images[this.current][this.frame];
+        draw(ctx, offsetX, offsetY) {
+            let currentImage;
+            if (this.isKicking) {
+                currentImage = this.images.kick;
+            } else {
+                currentImage = this.current === 'default' ? this.images.default : this.images[this.current][this.frame];
+            }
             ctx.drawImage(
                 currentImage,
-                this.x - this.width / 2,
-                this.y - this.height / 2,
+                this.x - this.width / 2 + offsetX,
+                this.y - this.height / 2 + offsetY,
                 this.width,
                 this.height
             );
@@ -155,13 +168,13 @@ window.addEventListener('load', function () {
             if (this.controlling) {
                 ctx.strokeStyle = 'red';
                 ctx.beginPath();
-                ctx.ellipse(this.x, this.y + this.height / 2, this.width / 2, 10, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.x + offsetX, this.y + this.height / 2 + offsetY, this.width / 2, 10, 0, 0, Math.PI * 2);
                 ctx.stroke();
             }
 
             const legs = this.getBoundingBox();
             ctx.strokestyle = 'red';
-            ctx.strokeRect(legs.x, legs.y, legs.width, legs.height);
+            // ctx.strokeRect(legs.x + offsetX, legs.y + offsetY, legs.width, legs.height);
         }
 
         getBoundingBox() {
@@ -172,8 +185,12 @@ window.addEventListener('load', function () {
                 height: this.height / 3
             };
         }
-    }
 
+        kick() {
+            this.isKicking = true;
+            this.kickTimer = 0;
+        }
+    }
 
     class Game {
         constructor() {
@@ -238,13 +255,21 @@ window.addEventListener('load', function () {
                 this.input.lastkey = '';
             }
 
+            if (this.input.lastkey === 'Space') {
+                this.pass();
+                this.input.lastkey = '';
+            }
+
             this.brazil.forEach(player => player.update(this.input));
         }
 
-        draw(ctx) {
-            ctx.drawImage(backgroundImage, 0 - 1400, 0 - 500, width + 3000, height + 1000);
+        draw(ctx, ball) {
+            const offsetX = width / 2 - ball.x;
+            const offsetY = height / 2 - ball.y;
 
-            [...this.brazil].forEach(player => player.draw(ctx));
+            ctx.drawImage(backgroundImage, offsetX - 1400, offsetY - 500, width + 3000, height + 1000);
+
+            [...this.brazil].forEach(player => player.draw(ctx, offsetX, offsetY));
         }
 
         switch() {
@@ -272,6 +297,71 @@ window.addEventListener('load', function () {
                 this.oncontrol.controlling = true;
             }
         }
+
+        pass() {
+            if (this.oncontrol.hasPossession) {
+                const nearestPlayer = this.findNearestPlayerInDirection();
+                if (nearestPlayer) {
+                    this.oncontrol.kick();
+                    this.oncontrol.hasPossession = false;
+                    ball.pass(nearestPlayer);
+                    this.switchControl(nearestPlayer);
+                }
+            }
+        }
+
+        findNearestPlayerInDirection() {
+            let nearestPlayer = null;
+            let shortestDistance = Number.MAX_VALUE;
+            const direction = this.oncontrol.current;
+
+            this.brazil.forEach(player => {
+                if (player !== this.oncontrol) {
+                    const distance = Math.sqrt(
+                        (player.x - this.oncontrol.x) ** 2 + (player.y - this.oncontrol.y) ** 2
+                    );
+
+                    if (distance < shortestDistance && this.isInDirection(player, direction)) {
+                        shortestDistance = distance;
+                        nearestPlayer = player;
+                    }
+                }
+            });
+
+            return nearestPlayer;
+        }
+
+        isInDirection(player, direction) {
+            const dx = player.x - this.oncontrol.x;
+            const dy = player.y - this.oncontrol.y;
+
+            switch (direction) {
+                case 'up':
+                    return dy < 0 && Math.abs(dx) < Math.abs(dy);
+                case 'down':
+                    return dy > 0 && Math.abs(dx) < Math.abs(dy);
+                case 'left':
+                    return dx < 0 && Math.abs(dy) < Math.abs(dx);
+                case 'right':
+                    return dx > 0 && Math.abs(dy) < Math.abs(dx);
+                case 'upLeft':
+                    return dx < 0 && dy < 0;
+                case 'upRight':
+                    return dx > 0 && dy < 0;
+                case 'downLeft':
+                    return dx < 0 && dy > 0;
+                case 'downRight':
+                    return dx > 0 && dy > 0;
+                default:
+                    return false;
+            }
+        }
+
+        switchControl(player) {
+            this.oncontrol.controlling = false;
+            this.oncontrol = player;
+            this.oncontrol.controlling = true;
+        }
     }
 
     class Ball {
@@ -287,11 +377,14 @@ window.addEventListener('load', function () {
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
+            this.isPassing = false;
+            this.passTarget = null;
+            this.passSpeed = 20; 
         }
 
-        draw(ctx) {
+        draw(ctx, offsetX, offsetY) {
             let currentImage;
-            if (this.possession) {
+            if (this.possession || this.isPassing) {
                 currentImage = this.image.moving[this.frame];
             }
             else {
@@ -299,23 +392,18 @@ window.addEventListener('load', function () {
             }
             ctx.drawImage(
                 currentImage,
-                this.x - this.radius,
-                this.y - this.radius,
+                this.x - this.radius + offsetX,
+                this.y - this.radius + offsetY,
                 this.radius * 3.5,
                 this.radius * 3.5
             );
         }
 
         update(players) {
-            if (this.possession) {
-                let ballposition;
-                if (this.possession.current.includes('Left')) {
-                    ballposition = -50;
-                }
-                else {
-                    ballposition = 50;
-                }
-                this.x = this.possession.x + ballposition + this.possession.dribble;
+            if (this.isPassing) {
+                this.updatePassingPosition();
+            } else if (this.possession) {
+                this.x = this.possession.x;
                 this.y = this.possession.y + 50;
                 this.ballAnimation();
                 this.possession.hasPossession = true;
@@ -330,7 +418,7 @@ window.addEventListener('load', function () {
             }
 
             if (this.possession && this.possession.current === 'left') {
-                this.x = this.possession.x - 50 + this.possession.dribble;
+                this.x = this.possession.x - 50;
                 this.y = this.possession.y + 50;
             }
             if (this.possession && this.possession.current === 'down') {
@@ -352,17 +440,47 @@ window.addEventListener('load', function () {
                 this.frame = (this.frame + 1) % 2;
             }
         }
+
+        pass(target) {
+            this.isPassing = true;
+            this.passTarget = target;
+            this.possession = null;
+        }
+
+        updatePassingPosition() {
+            const dx = this.passTarget.x - this.x;
+            const dy = this.passTarget.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > this.passSpeed) {
+                this.x += (dx / distance) * this.passSpeed;
+                this.y += (dy / distance) * this.passSpeed;
+            } else {
+                this.x = this.passTarget.x;
+                this.y = this.passTarget.y;
+                this.isPassing = false;
+                this.passTarget.hasPossession = true;
+                this.possession = this.passTarget;
+                game.switchControl(this.passTarget); 
+            }
+            this.ballAnimation();
+        }
     }
 
     const game = new Game();
     const ball = new Ball(width / 2, height / 2);
 
     function gameloop() {
+        ctx.clearRect(0, 0, width, height);
+        
         game.update();
         ball.update(game.brazil);
-        game.draw(ctx);
-        ball.draw(ctx);
+        
+        game.draw(ctx, ball);
+        ball.draw(ctx, width / 2 - ball.x, height / 2 - ball.y);
+        
         requestAnimationFrame(gameloop);
     }
+
     gameloop();
 });
