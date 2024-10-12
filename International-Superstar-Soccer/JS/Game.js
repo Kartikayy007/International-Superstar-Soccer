@@ -49,9 +49,9 @@ window.addEventListener('load', function () {
         constructor(x, y) {
             this.x = x;
             this.y = y;
-            this.width = 120;
+            this.width = 100;
             this.height = 170;
-            this.speed = 5;
+            this.speed = 5; 
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
@@ -59,7 +59,6 @@ window.addEventListener('load', function () {
             this.controlling = false;
             this.current = 'default';
             this.hasPossession = false;
-            this.dribble = 0;
             this.isKicking = false;
             this.kickTimer = 0;
 
@@ -136,27 +135,22 @@ window.addEventListener('load', function () {
                     else if (y > 0 && x > 0) {
                         this.current = 'downRight';
                     }
-
-                    if (this.hasPossession) {
-                        this.dribble = Math.sin(this.timer / 50) * 10;
-                    }
                 } else {
                     this.current = 'default';
                     this.frame = 0;
-                    this.dribble = 0;
                 }
             }
 
             if (this.isKicking) {
-                this.kickTimer += 16;
-                if (this.kickTimer >= 500) {  // Kick animation lasts for 500ms
+                this.kickTimer += 12;
+                if (this.kickTimer >= 100) { 
                     this.isKicking = false;
                     this.kickTimer = 0;
                 }
             }
         }
 
-        draw(ctx) {
+        draw(ctx, offsetX, offsetY) {
             let currentImage;
             if (this.isKicking) {
                 currentImage = this.images.kick;
@@ -165,8 +159,8 @@ window.addEventListener('load', function () {
             }
             ctx.drawImage(
                 currentImage,
-                this.x - this.width / 2,
-                this.y - this.height / 2,
+                this.x - this.width / 2 + offsetX,
+                this.y - this.height / 2 + offsetY,
                 this.width,
                 this.height
             );
@@ -174,13 +168,13 @@ window.addEventListener('load', function () {
             if (this.controlling) {
                 ctx.strokeStyle = 'red';
                 ctx.beginPath();
-                ctx.ellipse(this.x, this.y + this.height / 2, this.width / 2, 10, 0, 0, Math.PI * 2);
+                ctx.ellipse(this.x + offsetX, this.y + this.height / 2 + offsetY, this.width / 2, 10, 0, 0, Math.PI * 2);
                 ctx.stroke();
             }
 
             const legs = this.getBoundingBox();
             ctx.strokestyle = 'red';
-            ctx.strokeRect(legs.x, legs.y, legs.width, legs.height);
+            // ctx.strokeRect(legs.x + offsetX, legs.y + offsetY, legs.width, legs.height);
         }
 
         getBoundingBox() {
@@ -202,26 +196,57 @@ window.addEventListener('load', function () {
         constructor() {
             this.input = new InputHandler();
             this.brazil = [];
-            this.oncontrol = null;
+            this.oncontrol = false;
 
             const brazilPositions = [
-                { x: width * 0.2, y: height * 0.2 },
-                { x: width * 0.1, y: height * 0.4 },
-                { x: width * 0.2, y: height * 0.6 },
-                { x: width * 0.3, y: height * 0.3 },
-                { x: width * 0.3, y: height * 0.7 },
-                { x: width * 0.4, y: height * 0.2 },
-                { x: width * 0.4, y: height * 0.5 },
-                { x: width * 0.4, y: height * 0.8 },
-                { x: width * 0.5, y: height * 0.3 },
-                { x: width * 0.5, y: height * 0.7 }
+                {
+                    x: width * 0.2,
+                    y: height * 0.2
+                },
+                {
+                    x: width * 0.1,
+                    y: height * 0.4
+                },
+                {
+                    x: width * 0.2,
+                    y: height * 0.6
+                },
+                {
+                    x: width * 0.3,
+                    y: height * 0.3
+                },
+                {
+                    x: width * 0.3,
+                    y: height * 0.7
+                },
+                {
+                    x: width * 0.4,
+                    y: height * 0.2
+                },
+                {
+                    x: width * 0.4,
+                    y: height * 0.5
+                },
+                {
+                    x: width * 0.4,
+                    y: height * 0.8
+                },
+                {
+                    x: width * 0.5,
+                    y: height * 0.3
+                },
+                {
+                    x: width * 0.5,
+                    y: height * 0.7
+                }
             ];
 
             brazilPositions.forEach(e => {
                 this.brazil.push(new Player(e.x, e.y, 'brazil'));
             });
 
-            this.setControlledPlayer(this.brazil[0]);
+            this.oncontrol = this.brazil[0];
+            this.oncontrol.controlling = true;
         }
 
         update() {
@@ -238,24 +263,28 @@ window.addEventListener('load', function () {
             this.brazil.forEach(player => player.update(this.input));
         }
 
-        draw(ctx) {
-            ctx.drawImage(backgroundImage, 0 - 1400, 0 - 500, width + 3000, height + 1000);
-            [...this.brazil].forEach(player => player.draw(ctx));
+        draw(ctx, ball) {
+            const offsetX = width / 2 - ball.x;
+            const offsetY = height / 2 - ball.y;
+
+            ctx.drawImage(backgroundImage, offsetX - 1400, offsetY - 500, width + 3000, height + 1000);
+
+            [...this.brazil].forEach(player => player.draw(ctx, offsetX, offsetY));
         }
 
         switch() {
             const currentX = this.oncontrol.x;
             const currentY = this.oncontrol.y;
 
-            let nearestplayer = null;
+            let nearestplayer = '';
             let shortestdistance = Number.MAX_VALUE;
 
             this.brazil.forEach(player => {
                 if (player !== this.oncontrol) {
                     const dis = Math.sqrt(
-                        (player.x - currentX) ** 2 + (player.y - currentY) ** 2
+                        (player.x - currentX) * (player.x - currentX) + (player.y - currentY) * (player.y - currentY)
                     );
-                    if (dis < shortestdistance) {
+                    if (dis <= shortestdistance) {
                         shortestdistance = dis;
                         nearestplayer = player;
                     }
@@ -263,32 +292,36 @@ window.addEventListener('load', function () {
             });
 
             if (nearestplayer) {
-                this.setControlledPlayer(nearestplayer);
+                this.oncontrol.controlling = false;
+                this.oncontrol = nearestplayer;
+                this.oncontrol.controlling = true;
             }
         }
 
         pass() {
             if (this.oncontrol.hasPossession) {
-                const nearestPlayer = this.findNearestPlayer();
+                const nearestPlayer = this.findNearestPlayerInDirection();
                 if (nearestPlayer) {
                     this.oncontrol.kick();
                     this.oncontrol.hasPossession = false;
                     ball.pass(nearestPlayer);
-                    this.setControlledPlayer(nearestPlayer);
+                    this.switchControl(nearestPlayer);
                 }
             }
         }
 
-        findNearestPlayer() {
+        findNearestPlayerInDirection() {
             let nearestPlayer = null;
             let shortestDistance = Number.MAX_VALUE;
+            const direction = this.oncontrol.current;
 
             this.brazil.forEach(player => {
                 if (player !== this.oncontrol) {
                     const distance = Math.sqrt(
                         (player.x - this.oncontrol.x) ** 2 + (player.y - this.oncontrol.y) ** 2
                     );
-                    if (distance < shortestDistance) {
+
+                    if (distance < shortestDistance && this.isInDirection(player, direction)) {
                         shortestDistance = distance;
                         nearestPlayer = player;
                     }
@@ -298,10 +331,34 @@ window.addEventListener('load', function () {
             return nearestPlayer;
         }
 
-        setControlledPlayer(player) {
-            if (this.oncontrol) {
-                this.oncontrol.controlling = false;
+        isInDirection(player, direction) {
+            const dx = player.x - this.oncontrol.x;
+            const dy = player.y - this.oncontrol.y;
+
+            switch (direction) {
+                case 'up':
+                    return dy < 0 && Math.abs(dx) < Math.abs(dy);
+                case 'down':
+                    return dy > 0 && Math.abs(dx) < Math.abs(dy);
+                case 'left':
+                    return dx < 0 && Math.abs(dy) < Math.abs(dx);
+                case 'right':
+                    return dx > 0 && Math.abs(dy) < Math.abs(dx);
+                case 'upLeft':
+                    return dx < 0 && dy < 0;
+                case 'upRight':
+                    return dx > 0 && dy < 0;
+                case 'downLeft':
+                    return dx < 0 && dy > 0;
+                case 'downRight':
+                    return dx > 0 && dy > 0;
+                default:
+                    return false;
             }
+        }
+
+        switchControl(player) {
+            this.oncontrol.controlling = false;
             this.oncontrol = player;
             this.oncontrol.controlling = true;
         }
@@ -316,16 +373,16 @@ window.addEventListener('load', function () {
                 default: document.getElementById('ball-1'),
                 moving: [document.getElementById('ball-1'), document.getElementById('ball-2')]
             }
-            this.possession = null;
+            this.possession = '';
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
             this.isPassing = false;
             this.passTarget = null;
-            this.passSpeed = 10;
+            this.passSpeed = 20; 
         }
 
-        draw(ctx) {
+        draw(ctx, offsetX, offsetY) {
             let currentImage;
             if (this.possession || this.isPassing) {
                 currentImage = this.image.moving[this.frame];
@@ -335,8 +392,8 @@ window.addEventListener('load', function () {
             }
             ctx.drawImage(
                 currentImage,
-                this.x - this.radius,
-                this.y - this.radius,
+                this.x - this.radius + offsetX,
+                this.y - this.radius + offsetY,
                 this.radius * 3.5,
                 this.radius * 3.5
             );
@@ -346,14 +403,7 @@ window.addEventListener('load', function () {
             if (this.isPassing) {
                 this.updatePassingPosition();
             } else if (this.possession) {
-                let ballposition;
-                if (this.possession.current.includes('Left')) {
-                    ballposition = -50;
-                }
-                else {
-                    ballposition = 50;
-                }
-                this.x = this.possession.x + ballposition + this.possession.dribble;
+                this.x = this.possession.x;
                 this.y = this.possession.y + 50;
                 this.ballAnimation();
                 this.possession.hasPossession = true;
@@ -363,13 +413,12 @@ window.addEventListener('load', function () {
                     if (this.x > legs.x && this.x < legs.x + legs.width && this.y > legs.y && this.y < legs.y + legs.height) {
                         this.possession = player;
                         player.hasPossession = true;
-                        game.setControlledPlayer(player); 
                     }
                 });
             }
 
             if (this.possession && this.possession.current === 'left') {
-                this.x = this.possession.x - 50 + this.possession.dribble;
+                this.x = this.possession.x - 50;
                 this.y = this.possession.y + 50;
             }
             if (this.possession && this.possession.current === 'down') {
@@ -412,7 +461,7 @@ window.addEventListener('load', function () {
                 this.isPassing = false;
                 this.passTarget.hasPossession = true;
                 this.possession = this.passTarget;
-                game.setControlledPlayer(this.passTarget);
+                game.switchControl(this.passTarget); 
             }
             this.ballAnimation();
         }
@@ -427,8 +476,8 @@ window.addEventListener('load', function () {
         game.update();
         ball.update(game.brazil);
         
-        game.draw(ctx);
-        ball.draw(ctx);
+        game.draw(ctx, ball);
+        ball.draw(ctx, width / 2 - ball.x, height / 2 - ball.y);
         
         requestAnimationFrame(gameloop);
     }
