@@ -43,7 +43,7 @@ window.addEventListener('load', function () {
     }
 
     class Player {
-        constructor(x, y, team) {
+        constructor(x, y) {
             this.x = x;
             this.y = y;
             this.width = 70;
@@ -52,9 +52,8 @@ window.addEventListener('load', function () {
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
-            this.team = team;
+            this.team = 'brazil';
             this.controlling = false;
-
             this.current = 'default';
 
             this.images = this.team === 'brazil' ? {
@@ -69,7 +68,7 @@ window.addEventListener('load', function () {
                 downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')]
             } : {
                 //Argentina ka add karna hai yaha
-                };
+            };
         }
 
         update(input) {
@@ -77,10 +76,19 @@ window.addEventListener('load', function () {
                 let x = 0;
                 let y = 0;
 
-                if (input.keys.indexOf('w') !== -1) y -= this.speed;
-                if (input.keys.indexOf('s') !== -1) y += this.speed;
-                if (input.keys.indexOf('a') !== -1) x -= this.speed;
-                if (input.keys.indexOf('d') !== -1) x += this.speed;
+                if (input.keys.indexOf('w') !== -1) {
+                    y -= this.speed;
+                }
+                if (input.keys.indexOf('s') !== -1) {
+
+                    y += this.speed;
+                }
+                if (input.keys.indexOf('a') !== -1) {
+                    x -= this.speed;
+                }
+                if (input.keys.indexOf('d') !== -1) {
+                    x += this.speed;
+                }
 
                 if (x !== 0 && y !== 0) {
                     x *= 0.7;
@@ -91,7 +99,7 @@ window.addEventListener('load', function () {
                 this.y += y;
 
                 if (x !== 0 || y !== 0) {
-                    this.timer += 16.67;
+                    this.timer += 16;
                     if (this.timer >= this.interval) {
                         this.timer = 0;
                         this.frame = (this.frame + 1) % 3;
@@ -99,25 +107,25 @@ window.addEventListener('load', function () {
 
                     if (y < 0 && x === 0) {
                         this.current = 'up';
-                    } 
+                    }
                     else if (y > 0 && x === 0) {
                         this.current = 'down';
-                    } 
+                    }
                     else if (x < 0 && y === 0) {
                         this.current = 'left';
-                    } 
+                    }
                     else if (x > 0 && y === 0) {
                         this.current = 'right';
-                    } 
+                    }
                     else if (y < 0 && x < 0) {
                         this.current = 'upLeft';
-                    } 
+                    }
                     else if (y < 0 && x > 0) {
                         this.current = 'upRight';
-                    } 
+                    }
                     else if (y > 0 && x < 0) {
                         this.current = 'downLeft';
-                    } 
+                    }
                     else if (y > 0 && x > 0) {
                         this.current = 'downRight';
                     }
@@ -154,26 +162,46 @@ window.addEventListener('load', function () {
             this.oncontrol = false;
 
             const brazilPositions = [
-                {x: width * 0.2,
-                y: height * 0.2},
-                {x: width * 0.1,
-                y: height * 0.4},
-                {x: width * 0.2,
-                y: height * 0.6},
-                {x: width * 0.3,
-                y: height * 0.3},
-                {x: width * 0.3,
-                y: height * 0.7},
-                {x: width * 0.4, 
-                y: height * 0.2},
-                {x: width * 0.4, 
-                y: height * 0.5},
-                {x: width * 0.4, 
-                y: height * 0.8},
-                {x: width * 0.5, 
-                y: height * 0.3},
-                {x: width * 0.5, 
-                y: height * 0.7}
+                {
+                    x: width * 0.2,
+                    y: height * 0.2
+                },
+                {
+                    x: width * 0.1,
+                    y: height * 0.4
+                },
+                {
+                    x: width * 0.2,
+                    y: height * 0.6
+                },
+                {
+                    x: width * 0.3,
+                    y: height * 0.3
+                },
+                {
+                    x: width * 0.3,
+                    y: height * 0.7
+                },
+                {
+                    x: width * 0.4,
+                    y: height * 0.2
+                },
+                {
+                    x: width * 0.4,
+                    y: height * 0.5
+                },
+                {
+                    x: width * 0.4,
+                    y: height * 0.8
+                },
+                {
+                    x: width * 0.5,
+                    y: height * 0.3
+                },
+                {
+                    x: width * 0.5,
+                    y: height * 0.7
+                }
             ];
 
             brazilPositions.forEach(e => {
@@ -194,8 +222,8 @@ window.addEventListener('load', function () {
         }
 
         draw(ctx) {
-            ctx.drawImage(backgroundImage, 0-2000, 0-500, width + 3000, height + 1000);
-            
+            ctx.drawImage(backgroundImage, 0 - 1400, 0 - 500, width + 3000, height + 1000);
+
             [...this.brazil].forEach(player => player.draw(ctx));
         }
 
@@ -210,7 +238,7 @@ window.addEventListener('load', function () {
                 if (player !== this.oncontrol) {
                     const dis = Math.sqrt(
                         (player.x - currentX) * (player.x - currentX) + (player.y - currentY) * (player.y - currentY)
-                    );if (dis <= shortestdistance) {
+                    ); if (dis <= shortestdistance) {
                         shortestdistance = dis;
                         nearestplayer = player;
                     }
@@ -226,15 +254,12 @@ window.addEventListener('load', function () {
     }
 
     const game = new Game();
-    
-    function gameLoop() {
+
+    function gameloop() {
         game.update();
         game.draw(ctx);
-        requestAnimationFrame(gameLoop);
+        requestAnimationFrame(gameloop);
     }
-    
-    gameLoop();
+
+    gameloop();
 });
-
-
-
