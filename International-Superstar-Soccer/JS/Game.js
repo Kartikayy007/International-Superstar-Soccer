@@ -363,7 +363,7 @@ window.addEventListener('load', function () {
                     if (this.x > legs.x && this.x < legs.x + legs.width && this.y > legs.y && this.y < legs.y + legs.height) {
                         this.possession = player;
                         player.hasPossession = true;
-                        game.setControlledPlayer(player);  // Transfer control to the player who gets the ball
+                        game.setControlledPlayer(player); 
                     }
                 });
             }
