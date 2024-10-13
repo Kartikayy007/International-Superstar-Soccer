@@ -1,0 +1,53 @@
+body {
+    font-family: Roboto 'Roboto Mono', monospace;
+    font-size: 18px;
+    text-align: center;
+    background: url('../assets/images/Screenshot_2024-10-13_at_10.11.55_PM-Photoroom.webp') repeat-y; 
+    background-size: cover;
+    animation: moveBackground 10s linear infinite; 
+    color: #ff00ff; 
+    filter: pixelate(1px);
+}
+
+@keyframes moveBackground {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 -100%;
+    }
+}
+
+.menu-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    font-family: Roboto 'Roboto Mono', monospace;
+    margin: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.3s, background-color 0.3s;
+    filter: pixelate(1px);
+}
+
+li:hover {
+    color: #000080; 
+    background-color: #ff00ff; 
+}
+
+h1 {
+    font-family: "Press Start 2P", sans-serif; 
+    font-size: 36px;
+    color: #ff00ff; 
+    text-shadow: 2px 2px 0 #000080; 
+}
+

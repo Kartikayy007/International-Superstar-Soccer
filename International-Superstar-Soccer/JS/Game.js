@@ -6,6 +6,10 @@ window.addEventListener('load', function () {
     const width = canvas.width = window.innerWidth;
 
     const backgroundImage = document.getElementById('backgroundImage');
+    const backgroundWidth = backgroundImage.naturalWidth;
+    const backgroundHeight = backgroundImage.naturalHeight;
+
+    const zoomFactor = 2.5; // Adjust this value to zoom in or out
 
     class InputHandler {
         constructor() {
@@ -23,7 +27,9 @@ window.addEventListener('load', function () {
                 }
                 if (e.key === 'Shift') {
                     e.preventDefault();
-                    this.lastkey = 'Shift';
+                    if (this.keys.indexOf(e.key) === -1) {
+                        this.keys.push(e.key);
+                    }
                 }
                 if (e.key === ' ') {
                     this.lastkey = 'Space';
@@ -35,11 +41,9 @@ window.addEventListener('load', function () {
                     e.key === 'a' ||
                     e.key === 's' ||
                     e.key === 'd' ||
-                    e.key === ' ') {
+                    e.key === ' ' ||
+                    e.key === 'Shift') {
                     this.keys.splice(this.keys.indexOf(e.key), 1);
-                }
-                if (e.key === 'Shift') {
-                    this.lastkey = '';
                 }
             });
         }
@@ -51,7 +55,7 @@ window.addEventListener('load', function () {
             this.y = y;
             this.width = 100;
             this.height = 170;
-            this.speed = 5; 
+            this.speed = 5;
             this.frame = 0;
             this.timer = 0;
             this.interval = 100;
@@ -61,6 +65,17 @@ window.addEventListener('load', function () {
             this.hasPossession = false;
             this.isKicking = false;
             this.kickTimer = 0;
+            this.baseX = x;
+            this.baseY = y;
+            this.horizontalOffset = 0;
+            this.verticalOffset = 0;
+
+            // New properties for subtle movements
+            // this.initialX = x;
+            // this.initialY = y;
+            this.movementAngle = Math.random() * Math.PI;
+            this.movementRadius = 10;
+            this.movementSpeed = 0.03;
 
             this.images = this.team === 'brazil' ? {
                 default: document.getElementById('default1'),
@@ -72,81 +87,114 @@ window.addEventListener('load', function () {
                 upRight: [document.getElementById('1up-right-1'), document.getElementById('1up-right-2'), document.getElementById('1up-right-3')],
                 downLeft: [document.getElementById('1down-left-1'), document.getElementById('1down-left-2'), document.getElementById('1down-left-3')],
                 downRight: [document.getElementById('1down-right-1'), document.getElementById('1down-right-2'), document.getElementById('1down-right-3')],
-                kick: document.getElementById('kick-sprite')
+                kick: document.getElementById('kick-brz')
             } : {
-                //Argentina ka add karna hai yaha
+                default: document.getElementById('default2'),
+                up: [document.getElementById('2up-1'), document.getElementById('2up-2'), document.getElementById('2up-3')],
+                down: [document.getElementById('2down-1'), document.getElementById('2down-2'), document.getElementById('2down-3')],
+                right: [document.getElementById('2right-1'), document.getElementById('2right-2'), document.getElementById('2right-3')],
+                left: [document.getElementById('2left-1'), document.getElementById('2left-2'), document.getElementById('2left-3')],
+                upLeft: [document.getElementById('2up-left-1'), document.getElementById('2up-left-2'), document.getElementById('2up-left-3')],
+                upRight: [document.getElementById('2up-right-1'), document.getElementById('2up-right-2'), document.getElementById('2up-right-3')],
+                downLeft: [document.getElementById('2down-left-1'), document.getElementById('2down-left-2'), document.getElementById('2down-left-3')],
+                downRight: [document.getElementById('2down-right-1'), document.getElementById('2down-right-2'), document.getElementById('2down-right-3')],
+                kick: document.getElementById('kick-arg')
             };
         }
 
-        update(input) {
+        update(input, ball) {
             if (this.controlling) {
-                let x = 0;
-                let y = 0;
-
-                if (input.keys.indexOf('w') !== -1) {
-                    y -= this.speed;
-                }
-                if (input.keys.indexOf('s') !== -1) {
-                    y += this.speed;
-                }
-                if (input.keys.indexOf('a') !== -1) {
-                    x -= this.speed;
-                }
-                if (input.keys.indexOf('d') !== -1) {
-                    x += this.speed;
-                }
-
-                if (x !== 0 && y !== 0) {
-                    x *= 0.7;
-                    y *= 0.7;
-                }
-
-                this.x += x;
-                this.y += y;
-
-                if (x !== 0 || y !== 0) {
-                    this.timer += 16;
-                    if (this.timer >= this.interval) {
-                        this.timer = 0;
-                        this.frame = (this.frame + 1) % 3;
-                    }
-
-                    if (y < 0 && x === 0) {
-                        this.current = 'up';
-                    } 
-                    else if (y > 0 && x === 0) {
-                        this.current = 'down';
-                    } 
-                    else if (x < 0 && y === 0) {
-                        this.current = 'left';
-                    } 
-                    else if (x > 0 && y === 0) {
-                        this.current = 'right';
-                    } 
-                    else if (y < 0 && x < 0) {
-                        this.current = 'upLeft';
-                    } 
-                    else if (y < 0 && x > 0) {
-                        this.current = 'upRight';
-                    } 
-                    else if (y > 0 && x < 0) {
-                        this.current = 'downLeft';
-                    } 
-                    else if (y > 0 && x > 0) {
-                        this.current = 'downRight';
-                    }
-                } else {
-                    this.current = 'default';
-                    this.frame = 0;
-                }
+                this.updateControlledPlayer(input);
+            } else {
+                this.updateNonControlledPlayer(ball);
             }
 
+            this.updateAnimationFrame();
+
             if (this.isKicking) {
-                this.kickTimer += 12;
-                if (this.kickTimer >= 100) { 
-                    this.isKicking = false;
-                    this.kickTimer = 0;
-                }
+                this.updateKickAnimation();
+            }
+        }
+
+
+        updateControlledPlayer(input) {
+            let x = 0;
+            let y = 0;
+            let speed = this.speed;
+
+            if (input.keys.indexOf('Shift') !== -1) {
+                speed *= 1.5;
+            }
+
+            if (input.keys.indexOf('w') !== -1) y -= speed;
+            if (input.keys.indexOf('s') !== -1) y += speed;
+            if (input.keys.indexOf('a') !== -1) x -= speed;
+            if (input.keys.indexOf('d') !== -1) x += speed;
+
+            if (x !== 0 && y !== 0) {
+                x *= 0.7;
+                y *= 0.7;
+            }
+
+            const leftBoundary = (this.y + y) * 0.5 - this.width * 10;
+            const rightBoundary = (this.y + y) * 0.5 + backgroundWidth + this.width * 9;
+
+            this.x = Math.max(leftBoundary, Math.min(this.x + x, rightBoundary));
+            this.y = Math.max(-this.height * 2, Math.min(this.y + y, backgroundHeight + this.height * 1.5));
+
+            if (x !== 0 || y !== 0) {
+                this.updateDirection(x, y);
+            } else {
+                this.current = 'default';
+                this.frame = 0;
+            }
+        }
+
+        updateNonControlledPlayer(ball) {
+            this.movementAngle += this.movementSpeed;
+            const offsetX = Math.cos(this.movementAngle) * this.movementRadius * 0.1; // Reduced movement radius
+            const offsetY = Math.sin(this.movementAngle) * this.movementRadius * 0.1;
+            this.x += offsetX;
+            this.y += offsetY;
+
+            this.faceTowardsBall(ball);
+        }
+
+        updateDirection(x, y) {
+            if (y < 0 && x === 0) this.current = 'up';
+            else if (y > 0 && x === 0) this.current = 'down';
+            else if (x < 0 && y === 0) this.current = 'left';
+            else if (x > 0 && y === 0) this.current = 'right';
+            else if (y < 0 && x < 0) this.current = 'upLeft';
+            else if (y < 0 && x > 0) this.current = 'upRight';
+            else if (y > 0 && x < 0) this.current = 'downLeft';
+            else if (y > 0 && x > 0) this.current = 'downRight';
+        }
+
+        faceTowardsBall(ball) {
+            const dx = ball.x - this.x;
+            const dy = ball.y - this.y;
+            const angle = Math.atan2(dy, dx);
+
+            if (angle > -Math.PI / 4 && angle <= Math.PI / 4) this.current = 'right';
+            else if (angle > Math.PI / 4 && angle <= 3 * Math.PI / 4) this.current = 'down';
+            else if (angle > 3 * Math.PI / 4 || angle <= -3 * Math.PI / 4) this.current = 'left';
+            else this.current = 'up';
+        }
+
+        updateAnimationFrame() {
+            this.timer += 16;
+            if (this.timer >= this.interval) {
+                this.timer = 0;
+                this.frame = (this.frame + 1) % 3;
+            }
+        }
+
+        updateKickAnimation() {
+            this.kickTimer += 12;
+            if (this.kickTimer >= 100) {
+                this.isKicking = false;
+                this.kickTimer = 0;
             }
         }
 
@@ -171,10 +219,6 @@ window.addEventListener('load', function () {
                 ctx.ellipse(this.x + offsetX, this.y + this.height / 2 + offsetY, this.width / 2, 10, 0, 0, Math.PI * 2);
                 ctx.stroke();
             }
-
-            const legs = this.getBoundingBox();
-            ctx.strokestyle = 'red';
-            // ctx.strokeRect(legs.x + offsetX, legs.y + offsetY, legs.width, legs.height);
         }
 
         getBoundingBox() {
@@ -198,104 +242,52 @@ window.addEventListener('load', function () {
             this.brazil = [];
             this.oncontrol = false;
 
-            const brazilPositions = [
-                {
-                    x: width * 0.2,
-                    y: height * 0.2
-                },
-                {
-                    x: width * 0.1,
-                    y: height * 0.4
-                },
-                {
-                    x: width * 0.2,
-                    y: height * 0.6
-                },
-                {
-                    x: width * 0.3,
-                    y: height * 0.3
-                },
-                {
-                    x: width * 0.3,
-                    y: height * 0.7
-                },
-                {
-                    x: width * 0.4,
-                    y: height * 0.2
-                },
-                {
-                    x: width * 0.4,
-                    y: height * 0.5
-                },
-                {
-                    x: width * 0.4,
-                    y: height * 0.8
-                },
-                {
-                    x: width * 0.5,
-                    y: height * 0.3
-                },
-                {
-                    x: width * 0.5,
-                    y: height * 0.7
-                }
+            // Define football positions
+            const footballPositions = [
+                { x: backgroundWidth * -0.2, y: backgroundHeight * 0.5 }, // Goalkeeper
+                { x: backgroundWidth * -0.1, y: backgroundHeight * 0.01 }, // Left Back
+                { x: backgroundWidth * 0, y: backgroundHeight * 0.5 }, // Center Back
+                { x: backgroundWidth * 0.1, y: backgroundHeight * 1 }, // Right Back
+                { x: backgroundWidth * 0, y: backgroundHeight * -0.2 }, // Left Midfielder
+                { x: backgroundWidth * 0.2, y: backgroundHeight * 0.4 }, // Center Midfielder
+                { x: backgroundWidth * 0.4, y: backgroundHeight * 1 }, // Right Midfielder
+                { x: backgroundWidth * 0.3, y: backgroundHeight * -0.2 }, // Left Forward
+                { x: backgroundWidth * 0.5, y: backgroundHeight * 0.5 }, // Center Forward
+                { x: backgroundWidth * 0.65, y: backgroundHeight * 1 }  // Right Forward
             ];
 
-            brazilPositions.forEach(e => {
-                this.brazil.push(new Player(e.x, e.y, 'brazil'));
+            footballPositions.forEach(pos => {
+                this.brazil.push(new Player(pos.x, pos.y, 'brazil'));
             });
 
-            this.oncontrol = this.brazil[0];
+            this.oncontrol = this.brazil[8];
             this.oncontrol.controlling = true;
         }
 
         update() {
-            if (this.input.lastkey === 'Shift') {
-                this.switch();
-                this.input.lastkey = '';
-            }
-
             if (this.input.lastkey === 'Space') {
                 this.pass();
                 this.input.lastkey = '';
             }
 
-            this.brazil.forEach(player => player.update(this.input));
+            this.brazil.forEach(player => player.update(this.input, ball));
         }
+        
 
         draw(ctx, ball) {
             const offsetX = width / 2 - ball.x;
             const offsetY = height / 2 - ball.y;
 
-            ctx.drawImage(backgroundImage, offsetX - 1400, offsetY - 500, width + 3000, height + 1000);
+            // Adjust the background drawing to zoom in
+            ctx.drawImage(
+                backgroundImage,
+                offsetX - (backgroundWidth * (zoomFactor - 1)) / 2,
+                offsetY - (backgroundHeight * (zoomFactor - 1)) / 2,
+                backgroundWidth * zoomFactor,
+                backgroundHeight * zoomFactor
+            );
 
             [...this.brazil].forEach(player => player.draw(ctx, offsetX, offsetY));
-        }
-
-        switch() {
-            const currentX = this.oncontrol.x;
-            const currentY = this.oncontrol.y;
-
-            let nearestplayer = '';
-            let shortestdistance = Number.MAX_VALUE;
-
-            this.brazil.forEach(player => {
-                if (player !== this.oncontrol) {
-                    const dis = Math.sqrt(
-                        (player.x - currentX) * (player.x - currentX) + (player.y - currentY) * (player.y - currentY)
-                    );
-                    if (dis <= shortestdistance) {
-                        shortestdistance = dis;
-                        nearestplayer = player;
-                    }
-                }
-            });
-
-            if (nearestplayer) {
-                this.oncontrol.controlling = false;
-                this.oncontrol = nearestplayer;
-                this.oncontrol.controlling = true;
-            }
         }
 
         pass() {
@@ -305,13 +297,13 @@ window.addEventListener('load', function () {
                     this.oncontrol.kick();
                     this.oncontrol.hasPossession = false;
                     ball.pass(nearestPlayer);
-                    this.switchControl(nearestPlayer);
+                    this.switchControl(nearestPlayer); // Switch control to the nearest player
                 }
             }
         }
 
         findNearestPlayerInDirection() {
-            let nearestPlayer = null;
+            let nearestPlayer = '';
             let shortestDistance = Number.MAX_VALUE;
             const direction = this.oncontrol.current;
 
@@ -371,15 +363,15 @@ window.addEventListener('load', function () {
             this.radius = 10;
             this.image = {
                 default: document.getElementById('ball-1'),
-                moving: [document.getElementById('ball-1'), document.getElementById('ball-2')]
+                moving: [document.getElementById('ball-1'), document.getElementById('ball-2'), document.getElementById('ball-3'), document.getElementById('ball-4')]
             }
             this.possession = '';
             this.frame = 0;
             this.timer = 0;
-            this.interval = 100;
+            this.interval = 20;
             this.isPassing = false;
             this.passTarget = null;
-            this.passSpeed = 20; 
+            this.passSpeed = 25; // Increased pass speed
         }
 
         draw(ctx, offsetX, offsetY) {
@@ -426,6 +418,11 @@ window.addEventListener('load', function () {
                 this.y = this.possession.y + 50;
             }
 
+            // Set frame to 0 if the player is not moving
+            if (this.possession && this.possession.current === 'default') {
+                this.frame = 0;
+            }
+
             players.forEach(player => {
                 if (player !== this.possession) {
                     player.hasPossession = false;
@@ -437,7 +434,11 @@ window.addEventListener('load', function () {
             this.timer += 16;
             if (this.timer >= this.interval) {
                 this.timer = 0;
-                this.frame = (this.frame + 1) % 2;
+                if (this.possession && this.possession.current === 'right') {
+                    this.frame = (this.frame - 1 + 4) % 4; // Play in reverse when running right
+                } else {
+                    this.frame = (this.frame + 1) % 4;
+                }
             }
         }
 
@@ -445,6 +446,7 @@ window.addEventListener('load', function () {
             this.isPassing = true;
             this.passTarget = target;
             this.possession = null;
+            this.interval = 10; // Reduce the interval when the ball is passed
         }
 
         updatePassingPosition() {
@@ -461,26 +463,23 @@ window.addEventListener('load', function () {
                 this.isPassing = false;
                 this.passTarget.hasPossession = true;
                 this.possession = this.passTarget;
-                game.switchControl(this.passTarget); 
+                game.switchControl(this.passTarget); // Switch control to the player receiving the pass
+                this.interval = 20; // Reset the interval after the pass is complete
             }
             this.ballAnimation();
         }
     }
 
     const game = new Game();
-    const ball = new Ball(width / 2, height / 2);
+    const ball = new Ball(width / 1.18, height / 2.2);
 
     function gameloop() {
         ctx.clearRect(0, 0, width, height);
-        
         game.update();
         ball.update(game.brazil);
-        
         game.draw(ctx, ball);
         ball.draw(ctx, width / 2 - ball.x, height / 2 - ball.y);
-        
         requestAnimationFrame(gameloop);
     }
-
     gameloop();
 });
