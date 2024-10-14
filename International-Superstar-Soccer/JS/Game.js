@@ -34,7 +34,7 @@ window.addEventListener('load', function () {
             this.brazilPenaltyAreaX = -this.penaltyAreaWidth - 200; 
             this.argentinaPenaltyAreaX = widthbackground - this.penaltyAreaWidth + 2000; 
             this.gameTime = 0; 
-            this.gameDuration = 1* 1000; // Five minutes ka timer
+            this.gameDuration = 5 * 1000; // Five minutes ka timer
             this.gameOver = false;
             
            
@@ -156,7 +156,7 @@ window.addEventListener('load', function () {
             restartLink.style.textDecoration = 'none';
             restartLink.style.borderRadius = '5px';
             restartLink.style.cursor = 'pointer';
-            restartLink.href = 'index.html';
+            restartLink.href = 'intro.html';
             gameOverScreen.appendChild(restartLink);
         
             cancelAnimationFrame(this.animationFrameId);
