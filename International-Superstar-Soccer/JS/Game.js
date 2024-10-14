@@ -483,7 +483,7 @@ window.addEventListener('load', function () {
                     this.oncontrol.kick();
                     this.oncontrol.possesball = false;
                     ball.pass(nearestPlayer);
-                    this.switchControl(nearestPlayer);
+                    this.switchControl(nearestPlayer); // Switch control to the nearest player
                 }
             }
         }

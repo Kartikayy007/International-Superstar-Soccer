@@ -1,0 +1,109 @@
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-image: url('../assets/images/pexels-pixabay-46798 \(1\).jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.container {
+    display: flex;
+}
+
+.left-container,
+.right-container {
+    position: relative; 
+    width: 300px;
+    height: auto;
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5), 0 0 40px rgba(255, 0, 0, 0.3);
+    margin-left: 20px;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Hide overflow to maintain the effect */
+}
+
+.left-container::after,
+.right-container::after {
+    content: '';
+    position: absolute;
+    top: 0; 
+    left: -100%; /* Start off-screen to the left */
+    width: 100%; /* Full width of the container */
+    height: 4px; /* Height of the line */
+    background: linear-gradient(90deg, rgba(255, 0, 0, 0.5), rgba(255, 165, 0, 0.7), rgba(255, 0, 0, 0.5)); /* Color gradient */
+    animation: moveLine 3s linear infinite; /* Animation */
+}
+
+.right-container::after {
+    animation: moveLine 3s linear infinite; /* Same animation for right container */
+}
+
+@keyframes moveLine {
+    0% {
+        left: -100%; /* Start off-screen to the left */
+    }
+    100% {
+        left: 100%; /* Move to off-screen to the right */
+    }
+}
+
+h2 {
+    text-align: center;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    color: black;
+    margin-bottom: 20px;
+}
+
+.left-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.left-container li {
+    font-size: 20px;
+    color: blue;
+    font-family: Arial, sans-serif;
+    padding: 15px 0;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.left-container a {
+    text-decoration: none;
+    color: blue;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+}
+
+.left-container a:hover {
+    background-color: rgba(0, 0, 255, 0.2);
+    color: darkblue;
+}
+
+.right-container {
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.right-container h2 {
+    margin-top: 0;
+    color: black;
+}
+
+.container:hover .left-container,
+.container:hover .right-container {
+    transform: scale(1.05);
+    box-shadow: 0 6px 30px rgba(255, 165, 0, 0.7), 0 0 60px rgba(255, 165, 0, 0.5);
+}
