@@ -11,7 +11,6 @@ window.addEventListener('load', function () {
     
     class Game {
         constructor() {
-            
             this.input = new InputHandler();
             this.brazil = [];
             this.argentina = [];
