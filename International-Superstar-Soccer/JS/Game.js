@@ -6,8 +6,6 @@ window.addEventListener('load', function () {
     const width = canvas.width = window.innerWidth;
 
     const background = document.getElementById('backgroundImage');
-    const passaudio = document.getElementById('pass1');
-    const kickaudio = document.getElementById('pass2');
 
     
     
@@ -34,11 +32,9 @@ window.addEventListener('load', function () {
             this.brazilPenaltyAreaX = -this.penaltyAreaWidth - 200; 
             this.argentinaPenaltyAreaX = widthbackground - this.penaltyAreaWidth + 2000; 
             this.gameTime = 0; 
-            this.gameDuration = 5 * 1000; // Five minutes ka timer
+            this.gameDuration = 10 * 60 * 1000; // Five minutes ka timer
             this.gameOver = false;
-            
-           
-
+        
 
             const brazilPositions = [
                 { x: widthbackground * -0.2, y: backgroundHeight * 0.5 }, 
@@ -107,68 +103,24 @@ window.addEventListener('load', function () {
             this.checkgoalAttempt();
             this.checkForGoalKick();
         }
+
         endGame() {
             this.gameOver = true;
             this.gameOverscreen();
         }
 
         gameOverscreen() {
-            const gameOverScreen = document.createElement('div');
-            gameOverScreen.style.position = 'absolute';
-            gameOverScreen.style.top = '0';
-            gameOverScreen.style.left = '0';
-            gameOverScreen.style.width = '100%';
-            gameOverScreen.style.height = '100%';
-            gameOverScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-            gameOverScreen.style.display = 'flex';
-            gameOverScreen.style.flexDirection = 'column';
-            gameOverScreen.style.justifyContent = 'center';
-            gameOverScreen.style.alignItems = 'center';
-            gameOverScreen.style.color = 'white';
-            gameOverScreen.style.fontFamily = 'Sixtyfour Convergence, sans-serif';
-            gameOverScreen.style.zIndex = '1000';
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, width, height);
 
-            const gameOverText = document.createElement('div');
-            gameOverText.style.fontSize = '48px';
-            gameOverText.style.marginBottom = '20px';
-            gameOverText.innerText = 'GAME OVER';
+            ctx.fillStyle = 'white';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('GAME OVER', width / 2, height / 2 - 100);
 
-            const finalScoreText = document.createElement('div');
-            finalScoreText.style.fontSize = '36px';
-            finalScoreText.style.fontFamily = 'Sixtyfour Convergence, sans-serif';
-            finalScoreText.innerText = `Final Score: Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`;
-
-            gameOverScreen.appendChild(gameOverText);
-            gameOverScreen.appendChild(finalScoreText);
-            document.body.appendChild(gameOverScreen);
-        
-            const restartLink = document.createElement('a');
-            restartLink.innerText = 'Restart';
-            restartLink.style.position = 'absolute';
-            restartLink.style.left = '50%';
-            restartLink.style.top = 'calc(50% + 100px)';
-            restartLink.style.transform = 'translate(-50%, -50%)';
-            restartLink.style.padding = '10px 20px';
-            restartLink.style.fontSize = '24px';
-            restartLink.style.backgroundColor = 'blue';
-            restartLink.style.color = 'white';
-            restartLink.style.textDecoration = 'none';
-            restartLink.style.borderRadius = '5px';
-            restartLink.style.cursor = 'pointer';
-            restartLink.addEventListener('click', () => {
-                location.reload();
-            });
-            gameOverScreen.appendChild(restartLink);
-        
-            cancelAnimationFrame(this.animationFrameId);
-        }
-
-        restartGame() {
-            this.score = { brazil: 0, argentina: 0 };
-            this.gameTime = 0;
-            this.gameOver = false;
-
-            this.resetPositions();
+            ctx.font = '36px Sixtyfour Convergence';
+            ctx.fillText(`Final Score: Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`, width / 2, height / 2);
+    
         }
 
         resetPositions() {
@@ -228,7 +180,7 @@ window.addEventListener('load', function () {
             const remainingTime = Math.max(0, this.gameDuration - this.gameTime);
             const minutes = Math.floor(remainingTime / 60000);
             const seconds = Math.floor((remainingTime % 60000) / 1000);
-            const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const timerText = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
             ctx.fillText(timerText, width / 2, 30);
             const scoreText = `Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`;
             ctx.fillText(scoreText, width / 2, 60);
@@ -285,25 +237,12 @@ window.addEventListener('load', function () {
                     this.scoregoal(team);
                 }
             }
-
-            if (this.isKicking) {
-                this.kickTimer += 16;
-                if (this.kickTimer >= 500) { 
-                    this.isKicking = false;
-                    this.kickTimer = 0;
-                }
-            }
         }
     
         scoregoal(team) {
             this.score[team]++;
             this.showScoreScreen(team);
             this.resetPositions();
-        }
-
-        isInArea(object, area) {
-            return object.x >= area.x && object.x <= area.x + area.width &&
-                   object.y >= area.y && object.y <= area.y + area.height;
         }
     
         attemptGoal(team) {
@@ -439,15 +378,14 @@ window.addEventListener('load', function () {
         }
 
         argentinaPass() {
-            passaudio.play();
             if (ball.possession && ball.possession.team === 'argentina') {
                 const teammates = this.argentina.filter(player => player !== ball.possession);
-                
+                if (teammates.length > 0) {
                     const randomteammate = teammates[Math.floor(Math.random() * teammates.length)];
                     ball.possession.kick();
                     ball.possession.possesball = false;
                     ball.pass(randomteammate);
-    
+                }
             }
         }
 
@@ -488,7 +426,6 @@ window.addEventListener('load', function () {
         }
 
         pass() {
-            kickaudio.play();
             if (this.oncontrol.possesball) {
                 const nearestPlayer = this.findNearestPlayerInDirection();
                 if (nearestPlayer && nearestPlayer.team === this.oncontrol.team) {
