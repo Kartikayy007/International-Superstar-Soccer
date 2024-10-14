@@ -1,6 +1,5 @@
 const background = document.getElementById('backgroundImage');
 
-
 const widthbackground = background.naturalWidth;
 const backgroundHeight = background.naturalHeight;
 class Player {
