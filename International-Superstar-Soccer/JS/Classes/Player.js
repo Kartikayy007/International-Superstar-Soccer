@@ -129,9 +129,15 @@ class Player {
         const y = ball.y - this.y;
         const angle = Math.atan2(y, x);
 
-        if (angle > -Math.PI / 4 && angle <= Math.PI / 4) this.current = 'right';
-        else if (angle > Math.PI / 4 && angle <= 3 * Math.PI / 4) this.current = 'down';
-        else if (angle > 3 * Math.PI / 4 || angle <= -3 * Math.PI / 4) this.current = 'left';
+        if (angle > -Math.PI / 4 && angle <= Math.PI / 4){
+            this.current = 'right';
+        } 
+        else if (angle > Math.PI / 4 && angle <= 3 * Math.PI / 4){
+            this.current = 'down';
+        } 
+        else if (angle > 3 * Math.PI / 4 || angle <= -3 * Math.PI / 4){
+            this.current = 'left';
+        } 
         else this.current = 'up';
     }
 
