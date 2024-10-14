@@ -155,7 +155,9 @@ window.addEventListener('load', function () {
             restartLink.style.textDecoration = 'none';
             restartLink.style.borderRadius = '5px';
             restartLink.style.cursor = 'pointer';
-            restartLink.href = 'intro.html';
+            restartLink.addEventListener('click', () => {
+                location.reload();
+            });
             gameOverScreen.appendChild(restartLink);
         
             cancelAnimationFrame(this.animationFrameId);
