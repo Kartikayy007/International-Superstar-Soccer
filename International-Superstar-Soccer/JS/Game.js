@@ -107,7 +107,6 @@ window.addEventListener('load', function () {
             this.checkgoalAttempt();
             this.checkForGoalKick();
         }
-
         endGame() {
             this.gameOver = true;
             this.gameOverscreen();
