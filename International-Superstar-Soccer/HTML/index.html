@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>International Superstar Soccer</title>
     <link rel="icon" href="assets/images/International_Superstar_Soccer-favicon.png">
-    <link rel="stylesheet" href ="../css/introstyle.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sixtyfour+Convergence&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="../CSS/styles.css">
 </head>
 <body>
@@ -18,17 +22,17 @@
     <div class="final-container">
        
     </div>
-    <audio id="myAudio" controls>
+    <!-- <audio id="myAudio" controls>
         <source src="../assets/Audio/01 Main Menu.mp3" type="audio/mp3">
         
-    </audio>
+    </audio> -->
 
- <div class="audio-controls">
+ <!-- <div class="audio-controls">
     
     <button id="playAudio">Play Audio</button>
     <button id="pauseAudio">Pause Audio</button>
     <button id="start">start</button>
-</div>
+</div> -->
     <img id="backgroundImage" src="../assets/images/Map/international-superstar-soccer-europe-gba-map.webp" alt="Football Field">
     <div class="preload-images">
         <img id="default1" src="../assets/images/BrazilSprites/running-left/1.png" />
@@ -100,10 +104,18 @@
 
         <img src="../assets/images/Football/1.png" alt="" id="ball-1">
         <img src="../assets/images/Football/2.png" alt="" id="ball-2">
+        <img src="../assets/images/Football/3.png" alt="" id="ball-3">
+        <img src="../assets/images/Football/4.png" alt="" id="ball-4">
+
+        <img src="../assets/images/ArgentinaSprites/kick/1.png" alt="" id="kick-arg">
+        <img src="../assets/images/BrazilSprites/kick/kick.png" alt="" id="kick-brz">
     </div>
 
     <canvas id="GameCanvas"></canvas>
+
+    <script src="../JS/Classes/Player.js"></script>
+    <script src="../JS/Classes/inputHandeling.js"></script>
     <script type="module" src="../JS/Game.js"></script>
-    <script src="../JS/introscript.js"></script>
+    <script src="../JS/Classes/Ball.js"></script>
 </body>
 </html>
