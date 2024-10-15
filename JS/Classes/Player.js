@@ -179,19 +179,5 @@ class Player {
         ctx.ellipse(this.x + offsetX, this.y + this.height / 2 + offsetY, this.width / 2, 10, 0, 0, Math.PI * 2);
         ctx.stroke();
         }
-
-        // const ballboundingbox = this.getBoundingBox();
-        // ctx.strokeStyle = 'green';
-        // ctx.strokeRect(ballboundingbox.x + offsetX, ballboundingbox.y + offsetY, ballboundingbox.width, ballboundingbox.height);
     }
-
-    getBoundingBox() {
-        return {
-        x: this.x - this.width / 2,
-        y: this.y - this.height / 2,
-        width: this.width,
-        height: this.height 
-        };
-    }
-
 }

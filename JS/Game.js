@@ -289,7 +289,7 @@ window.addEventListener('load', function () {
                 const possessionRadius = 20; 
                 if (ball.possession.team === 'argentina') {
                     this.brazil.forEach(brazilPlayer => {
-                        const distance = Math.sqrt((brazilPlayer.x - ball.possession.x) ** 2 + (brazilPlayer.y - ball.possession.y) ** 2);
+                        const distance = Math.sqrt((brazilPlayer.x - ball.possession.x) * (brazilPlayer.x - ball.possession.x) + (brazilPlayer.y - ball.possession.y) * (brazilPlayer.y - ball.possession.y));
                         if (distance < possessionRadius) {
                             this.changePossession(brazilPlayer);
                         }
