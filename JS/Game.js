@@ -436,7 +436,6 @@ window.addEventListener('load', function () {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
             ctx.fillRect(0, 0, width, height);
             
-            ctx.fillStyle = 'white';
             ctx.font = '48px Sixtyfour Convergence';
             ctx.textAlign = 'center';
             ctx.fillText(`${this.lastScoringTeam.toUpperCase()} SCORES!`, width / 2, height / 2 - 50);
