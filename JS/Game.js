@@ -33,7 +33,7 @@ window.addEventListener('load', function () {
             this.brazilPenaltyAreaX = -this.penaltyAreaWidth - 200; 
             this.argentinaPenaltyAreaX = widthbackground - this.penaltyAreaWidth + 2000; 
             this.gameTime = 0; 
-            this.gameDuration = 10 * 60 * 1000; // ten minutes ka timer
+            this.gameDuration = 2 * 1000; // ten minutes ka timer
             this.gameOver = false;
         
 
@@ -121,7 +121,28 @@ window.addEventListener('load', function () {
 
             ctx.font = '36px Sixtyfour Convergence';
             ctx.fillText(`Final Score: Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`, width / 2, height / 2);
+
+            ctx.fillStyle = 'black';
+            ctx.fillRect(width / 2 - 100, height / 2 + 100, 200, 50);
+            ctx.fillStyle = 'white';
+            ctx.font = '36px Sixtyfour Convergence';
+            ctx.fillText('Restart', width / 2, height / 2 + 130);
+            canvas.style.cursor = 'pointer';
+
+            canvas.addEventListener('click', this.handleRestartClick);
         }
+
+        handleRestartClick = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            if (x >= width / 2 - 100 && x <= width / 2 + 100 &&
+                y >= height / 2 + 100 && y <= height / 2 + 150) {
+                window.location.reload();
+            }
+        }
+        
 
         resetPositions() {
             ball.x = width / 1.18;
@@ -353,8 +374,8 @@ window.addEventListener('load', function () {
                     const x = ball.x - closestdefender.x;
                     const y = ball.y - closestdefender.y;
                     const distance = Math.sqrt(x * x + y * y);
-                    closestdefender.x += (x / distance) * closestdefender.speed * 1.5;
-                    closestdefender.y += (y / distance) * closestdefender.speed * 1.5;
+                    closestdefender.x += (x / distance) * closestdefender.speed * 1.2;
+                    closestdefender.y += (y / distance) * closestdefender.speed * 1.2;
                     closestdefender.updateDirection(x / closestdistance * closestdefender.speed, y / closestdistance * closestdefender.speed);
                 }
             }
