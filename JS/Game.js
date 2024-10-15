@@ -119,7 +119,6 @@ window.addEventListener('load', function () {
 
             ctx.font = '36px Sixtyfour Convergence';
             ctx.fillText(`Final Score: Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`, width / 2, height / 2);
-            hideplayersandball();
         }
 
         resetPositions() {
@@ -406,30 +405,53 @@ window.addEventListener('load', function () {
             }, 1000);
             }
         }
-
-        draw(ctx, ball) {
-        const zoom = 2.5;
-        const diagonalX = width / 2 - ball.x;
-        const diagonalY = height / 2 - ball.y;
-
-        ctx.drawImage(
-            background,
-            diagonalX - (widthbackground * (zoom - 1)) / 2,
-            diagonalY - (backgroundHeight * (zoom - 1)) / 2,
-            widthbackground * zoom,
-            backgroundHeight * zoom
-        );
-
-        if (this.showingScoreScreen) {
-            this.drawScoreScreen(ctx);
+        hideballandplayer() {
+            this.brazil.forEach(player => {
+                player.possesball = false;
+                player.visible = false;  
+            });
+            this.argentina.forEach(player => {
+                player.possesball = false;
+                player.visible = false;  
+            });
+            ball.possession = '';
+        }
+    
+        showballandplayer() {  
+            this.brazil.forEach(player => player.visible = true);
+            this.argentina.forEach(player => player.visible = true);
         }
 
-        this.brazil.forEach(player => player.draw(ctx, diagonalX, diagonalY));
-        this.argentina.forEach(player => player.draw(ctx, diagonalX, diagonalY));
-        ball.draw(ctx, diagonalX, diagonalY);
-            [...this.brazil, ...this.argentina].forEach(player => player.draw(ctx, diagonalX, diagonalY));
-
-        this.drawTimerAndScoreboard(ctx);
+        draw(ctx, ball) {
+                const zoom = 2.5;
+                const diagonalX = width / 2 - ball.x;
+                const diagonalY = height / 2 - ball.y;
+        
+                ctx.drawImage(
+                    background,
+                    diagonalX - (widthbackground * (zoom - 1)) / 2,
+                    diagonalY - (backgroundHeight * (zoom - 1)) / 2,
+                    widthbackground * zoom,
+                    backgroundHeight * zoom
+                );
+        
+                if (this.showingScoreScreen) {
+                    this.drawScoreScreen(ctx);
+                    this.hideballandplayer();
+                } else {
+                    this.showballandplayer();
+                    this.brazil.forEach(player => {
+                        if (player.visible) player.draw(ctx, diagonalX, diagonalY);
+                    });
+                    this.argentina.forEach(player => {
+                        if (player.visible) player.draw(ctx, diagonalX, diagonalY);
+                    });
+                }
+        
+                this.drawTimerAndScoreboard(ctx);
+            
+        
+            // drawTimerAndScoreboard(ctx);
         }
 
         drawScoreScreen(ctx) {
@@ -440,15 +462,14 @@ window.addEventListener('load', function () {
             ctx.textAlign = 'center';
             ctx.fillText(`${this.lastScoringTeam.toUpperCase()} SCORES!`, width / 2, height / 2 - 50);
             ctx.fillText(`Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`, width / 2, height / 2 + 50);
-            hideplayersandball();
+            
         }
 
-        hideplayersandball() {
-            this.brazil.forEach(player => player.hide());
-            this.argentina.forEach(player => player.hide());
-            ball.hide();
+        hideballandplayer() {
+            this.brazil.forEach(player => player.possesball = false);
+            this.argentina.forEach(player => player.possesball = false);
+            ball.possession = '';
         }
-
         pass() {
             if (this.oncontrol.possesball) {
                 const nearestPlayer = this.findNearestPlayerInDirection();
@@ -535,6 +556,8 @@ class Ball {
         this.lasttouch = '';
         this.kickSpeed = 35;
         this.kickangle = '';
+        this.visible = true;
+
     }
 
     draw(ctx, diagonalX, offsetY) {
@@ -551,27 +574,10 @@ class Ball {
             this.radius * 3.5,
             this.radius * 3.5
         );
-        // const ballboundingbox = this.getBoundingBox();
-        // ctx.strokeStyle = 'green';
-        // ctx.strokeRect(ballboundingbox.x + diagonalX, ballboundingbox.y + offsetY, ballboundingbox.width, ballboundingbox.height);
     }
     updateKickPosition() {
         this.x += Math.cos(this.kickangle) * this.kickSpeed;
         this.y += Math.sin(this.kickangle) * this.kickSpeed;
-
-        if (this.x <= 0 || this.x >= widthbackground || this.y <= 0 || this.y >= backgroundHeight) {
-            this.handleOutOfBounds();
-        }
-    }
-
-    getBoundingBox() {
-        const boundingBox = {
-            x: this.x - this.radius,
-            y: this.y - this.radius,
-            width: this.radius * 3.5,
-            height: this.radius * 3.5
-        };
-        return boundingBox;
     }
 
     update(players) {
