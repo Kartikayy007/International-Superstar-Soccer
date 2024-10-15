@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International Superstar Soccer</title>
+    <link rel="icon" href="assets/images/International_Superstar_Soccer-favicon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sixtyfour+Convergence&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../CSS/styles.css">
+</head>
+<body>
+    <!-- <div class="initial-container">
+       
+    </div>
+    <div class="new-container" style="display: none;">
+        
+    </div>
+    <div class="final-container">
+       
+    </div> -->
+    <!-- <audio id="myAudio" controls>
+        <source src="../assets/Audio/01 Main Menu.mp3" type="audio/mp3">
+        
+    </audio> -->
+
+ <!-- <div class="audio-controls">
+    
+    <button id="playAudio">Play Audio</button>
+    <button id="pauseAudio">Pause Audio</button>
+    <button id="start">start</button>
+</div> -->
+<audio id="pass1" src="../assets/Audio/pass.wav"></audio>
+<audio id="pass2" src="../assets/Audio/pass2.wav" ></audio>
+    <img id="backgroundImage" src="../assets/images/Map/international-superstar-soccer-europe-gba-map.webp" alt="Football Field">
+    <div class="preload-images">
+        <img id="default1" src="../assets/images/BrazilSprites/running-left/1.png" />
+        <img id="default2" src="../assets/images/BrazilSprites/running-right/1 copy.png" />
+        
+        <img id="1up-1" src="../assets/images/BrazilSprites/running-up/1.png" />
+        <img id="1up-2" src="../assets/images/BrazilSprites/running-up/2.png" />
+        <img id="1up-3" src="../assets/images/BrazilSprites/running-up/3.png" />
+        
+        <img id="1down-1" src="../assets/images/BrazilSprites/running-down/1.png" />
+        <img id="1down-2" src="../assets/images/BrazilSprites/running-down/2.png" />
+        <img id="1down-3" src="../assets/images/BrazilSprites/running-down/3.png" />
+        
+        <img id="1left-1" src="../assets/images/BrazilSprites/running-right/1 copy.png" />
+        <img id="1left-2" src="../assets/images/BrazilSprites/running-right/2 copy.png" />
+        <img id="1left-3" src="../assets/images/BrazilSprites/running-right/3 copy.png" />
+        
+        <img id="1right-1" src="../assets/images/BrazilSprites/running-left/1.png" />
+        <img id="1right-2" src="../assets/images/BrazilSprites/running-left/2.png" />
+        <img id="1right-3" src="../assets/images/BrazilSprites/running-left/3.png" />
+
+        <img src="../assets/images/BrazilSprites/running-downright/1.png" id="1down-right-1">
+        <img src="../assets/images/BrazilSprites/running-downright/2.png" id="1down-right-2">
+        <img src="../assets/images/BrazilSprites/running-upright/3.png" id="1down-right-3">
+
+        <img src="../assets/images/BrazilSprites/running-downleft/1.png" id="1down-left-1">
+        <img src="../assets/images/BrazilSprites/running-downleft/2.png" id="1down-left-2">
+        <img src="../assets/images/BrazilSprites/running-downleft/3.png" id="1down-left-3">
+
+        <img src="../assets/images/BrazilSprites/running-upright/1.png" id="1up-right-1">
+        <img src="../assets/images/BrazilSprites/running-upright/2.png" id="1up-right-2">
+        <img src="../assets/images/BrazilSprites/running-upright/3.png" id="1up-right-3">
+
+        <img src="../assets/images/BrazilSprites/running-upleft/1 copy.png" id="1up-left-1">
+        <img src="../assets/images/BrazilSprites/running-upleft/2 copy.png" id="1up-left-2">
+        <img src="../assets/images/BrazilSprites/running-upleft/3 copy.png" id="1up-left-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-up/1.png"  id="2up-1">
+        <img src="../assets/images/ArgentinaSprites/running-up/2.png"  id="2up-2">
+        <img src="../assets/images/ArgentinaSprites/running-up/3.png"  id="2up-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-down/1.png"  id="2down-1">
+        <img src="../assets/images/ArgentinaSprites/running-down/2.png"  id="2down-2">
+        <img src="../assets/images/ArgentinaSprites/running-down/3.png"  id="2down-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-right/1.png"  id="2right-1">
+        <img src="../assets/images/ArgentinaSprites/running-right/2.png"  id="2right-2">
+        <img src="../assets/images/ArgentinaSprites/running-right/3.png"  id="2right-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-left/1.png"  id="2left-1">
+        <img src="../assets/images/ArgentinaSprites/running-left/2.png"  id="2left-2">
+        <img src="../assets/images/ArgentinaSprites/running-left/3.png"  id="2left-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-downright/1.png" id="2down-right-1">
+        <img src="../assets/images/ArgentinaSprites/running-downright/2.png" id="2down-right-2">
+        <img src="../assets/images/ArgentinaSprites/running-downright/3.png" id="2down-right-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-downleft/1.png" id="2down-left-1">
+        <img src="../assets/images/ArgentinaSprites/running-downleft/2.png" id="2down-left-2">
+        <img src="../assets/images/ArgentinaSprites/running-downleft/3.png" id="2down-left-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-upright/1.png" id="2up-right-1">
+        <img src="../assets/images/ArgentinaSprites/running-upright/2.png" id="2up-right-2">
+        <img src="../assets/images/ArgentinaSprites/running-upright/3.png" id="2up-right-3">
+
+        <img src="../assets/images/ArgentinaSprites/running-upleft/1.png" id="2up-left-1">
+        <img src="../assets/images/ArgentinaSprites/running-upleft/2.png" id="2up-left-2">
+        <img src="../assets/images/ArgentinaSprites/running-upleft/3.png" id="2up-left-3">
+
+        <img src="../assets/images/Football/1.png" alt="" id="ball-1">
+        <img src="../assets/images/Football/2.png" alt="" id="ball-2">
+        <img src="../assets/images/Football/3.png" alt="" id="ball-3">
+        <img src="../assets/images/Football/4.png" alt="" id="ball-4">
+        <img src="../assets/images/Football/3.png" alt="" id="ball-3">
+        <img src="../assets/images/Football/4.png" alt="" id="ball-4">
+
+        <img src="../assets/images/ArgentinaSprites/kick/1.png" alt="" id="kick-arg">
+        <img src="../assets/images/BrazilSprites/kick/kick.png" alt="" id="kick-brz">
+    </div>
+
+    <canvas id="GameCanvas"></canvas>
+
+    <script src="../JS/Classes/Player.js"></script>
+    <script src="../JS/Classes/inputHandeling.js"></script>
+    <script type="module" src="../JS/Game.js"></script>
+</body>
+</html>
