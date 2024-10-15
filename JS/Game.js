@@ -119,7 +119,7 @@ window.addEventListener('load', function () {
 
             ctx.font = '36px Sixtyfour Convergence';
             ctx.fillText(`Final Score: Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`, width / 2, height / 2);
-    
+            hideplayersandball();
         }
 
         resetPositions() {
@@ -440,6 +440,13 @@ window.addEventListener('load', function () {
             ctx.textAlign = 'center';
             ctx.fillText(`${this.lastScoringTeam.toUpperCase()} SCORES!`, width / 2, height / 2 - 50);
             ctx.fillText(`Brazil ${this.score.brazil} - ${this.score.argentina} Argentina`, width / 2, height / 2 + 50);
+            hideplayersandball();
+        }
+
+        hideplayersandball() {
+            this.brazil.forEach(player => player.hide());
+            this.argentina.forEach(player => player.hide());
+            ball.hide();
         }
 
         pass() {
