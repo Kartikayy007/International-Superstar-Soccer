@@ -62,7 +62,7 @@ class Player {
     }
     
     kick() {
-        if (this.widthbackground) {
+        if (this.possesball) {
         this.kicking = true;
         this.kicktimer = 0;
         return true;
