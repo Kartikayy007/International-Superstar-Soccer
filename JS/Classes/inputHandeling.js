@@ -2,7 +2,10 @@ class InputHandler {
     constructor() {
         this.keys = [];
         this.lastkey = '';
-
+        window.addEventListener('blur', () => {
+            this.keys = [];
+        });
+        
         window.addEventListener('keydown', (e) => {
             if ((e.key === 'w' ||
                 e.key === 'a' ||
@@ -33,5 +36,6 @@ class InputHandler {
                 this.keys.splice(this.keys.indexOf(e.key), 1);
             }
         });
+
     }
 }
