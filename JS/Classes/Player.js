@@ -105,10 +105,10 @@ class Player {
 
     nonControllingPlayerUpdate(ball) {
         this.movementangle += this.movementspeed;
-        const offsetX = Math.cos(this.movementangle) * this.movementradius * 0.1; 
-        const offsetY = Math.sin(this.movementangle) * this.movementradius * 0.1;
-        this.x += offsetX;
-        this.y += offsetY;
+        const diagonalX = Math.cos(this.movementangle) * this.movementradius * 0.1; 
+        const diagonalY  = Math.sin(this.movementangle) * this.movementradius * 0.1;
+        this.x += diagonalX;
+        this.y += diagonalY;
 
         this.faceBall(ball);
     }
@@ -179,6 +179,10 @@ class Player {
         ctx.ellipse(this.x + offsetX, this.y + this.height / 2 + offsetY, this.width / 2, 10, 0, 0, Math.PI * 2);
         ctx.stroke();
         }
+
+        // const ballboundingbox = this.getBoundingBox();
+        // ctx.strokeStyle = 'green';
+        // ctx.strokeRect(ballboundingbox.x + offsetX, ballboundingbox.y + offsetY, ballboundingbox.width, ballboundingbox.height);
     }
 
     getBoundingBox() {
@@ -186,12 +190,8 @@ class Player {
         x: this.x - this.width / 2,
         y: this.y - this.height / 2,
         width: this.width,
-        height: this.height
+        height: this.height 
         };
     }
 
-    kick() {
-        this.kicking = true;
-        this.kicktimer = 0;
-    }
 }
