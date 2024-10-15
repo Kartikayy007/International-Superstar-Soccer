@@ -75,10 +75,6 @@ class Player {
         let y = 0;
         let speed = this.speed;
 
-        if (input.keys.indexOf('Shift') !== -1) {
-        speed *= 1.5;
-        }
-
         if (input.keys.indexOf('w') !== -1) y -= speed;
         if (input.keys.indexOf('s') !== -1) y += speed;
         if (input.keys.indexOf('a') !== -1) x -= speed;

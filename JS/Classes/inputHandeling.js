@@ -15,12 +15,6 @@ class InputHandler {
                 this.keys.indexOf(e.key) === -1) {
                 this.keys.push(e.key);
             }
-            if (e.key === 'Shift') {
-                e.preventDefault();
-                if (this.keys.indexOf(e.key) === -1) {
-                    this.keys.push(e.key);
-                }
-            }
             if (e.key === ' ') {
                 this.lastkey = 'Space';
             }
