@@ -1,13 +1,15 @@
 window.addEventListener('load', function () {
     const canvas = document.getElementById('GameCanvas');
     const ctx = canvas.getContext('2d');
+    const music = document.getElementById('music');
 
     const height = canvas.height = window.innerHeight;
     const width = canvas.width = window.innerWidth;
 
     const background = document.getElementById('backgroundImage');
 
-    
+    music.loop = true;
+    music.play();   
     
     class Game {
         constructor() {

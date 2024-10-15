@@ -7,22 +7,25 @@
     <link rel="icon" href="../assets/images/International_Superstar_Soccer-favicon.png">
     <link rel="stylesheet" href="./CSS/intro.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sixtyfour+Convergence&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sixtyfour+Convergence&display=swap" rel="stylesheet">
 </head>
 
 <style>
     * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-img {
-    display: block;
-    width: 100%;
-    height: 100vh;
-}
+    img {
+        display: block;
+        width: 100%;
+        height: 100vh;
+    }
+    #audio {
+        display: none;
+    }
 </style>
 <body>
     <img src="./assets/images/intropage.png" alt="">
@@ -33,14 +36,14 @@ img {
             img.style.transition = "opacity 2s";
 
             setTimeout(() => {
-            img.style.opacity = 1;
+                img.style.opacity = 1;
             }, 100);
 
             document.addEventListener("keydown", function() {
-            img.style.opacity = 0;
-            setTimeout(() => {
-                window.location.href = "./HTML/intro.html";
-            }, 1000); 
+                img.style.opacity = 0;
+                setTimeout(() => {
+                    window.location.href = "./HTML/intro.html";
+                }, 1000); 
             });
         });
     </script>
