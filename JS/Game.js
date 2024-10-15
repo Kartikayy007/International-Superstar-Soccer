@@ -433,7 +433,7 @@ window.addEventListener('load', function () {
         }
 
         drawScoreScreen(ctx) {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, width, height);
     
             ctx.font = '48px Sixtyfour Convergence';
