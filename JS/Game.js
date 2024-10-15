@@ -33,7 +33,7 @@ window.addEventListener('load', function () {
             this.brazilPenaltyAreaX = -this.penaltyAreaWidth - 200; 
             this.argentinaPenaltyAreaX = widthbackground - this.penaltyAreaWidth + 2000; 
             this.gameTime = 0; 
-            this.gameDuration = 2 * 1000; // ten minutes ka timer
+            this.gameDuration = 10 * 60 * 1000; // ten minutes ka timer
             this.gameOver = false;
         
 
