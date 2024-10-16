@@ -73,8 +73,4 @@ Contributions to improve International Superstar Soccer are welcome! Please feel
 - Game concept inspired by classic football arcade games
 - Sprite assets created by https://www.deviantart.com
 
-## Contact
-
-For any queries or suggestions, please open an issue on this repository or contact [Your Name] at [your.email@example.com].
-
 Enjoy the game!
